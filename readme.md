@@ -1,11 +1,10 @@
 # Images
 
-Simple image storage for [Nette Framework](http://nette.org/)
+Simple image storage and generator for [Nette Framework](http://nette.org/)
 
-## Instalation
+## Installation
 
 The best way to install ipub/images is using  [Composer](http://getcomposer.org/):
-
 
 ```json
 {
@@ -22,7 +21,7 @@ extensions:
 	images: IPub\Images\DI\ImagesExtension
 ```
 
-Package contains trait, which you will have to use in class, where you want to use image storage. This works only for PHP 5.4+, for older version you can simply copy trait content and paste it into class where you want to use it.
+Package contains trait, which you will have to use in class, where you want to access to the storage. This works only for PHP 5.4+, for older version you can simply copy trait content and paste it into class where you want to use it.
 
 ```php
 <?php
@@ -37,39 +36,66 @@ class BasePresenter extends Nette\Application\UI\Presenter
 
 ## Usage
 
+Basic concept of this extensions is to create several storage places for each module in you application. Sou you can have eshop images storage for eshop module, or users avatars storage to store users avatars.
+
+Second important think is, all storages services can store files outside of document root folder even on some cloud servers like AWS or own cloud.
+
+### Setting up default storage
+
+This extension has default file storage with this configuration:
+
+```neon
+images:
+	storage:
+		default:
+			service		: @images.storage.default
+			route		: "/images[/<namespace .+>]/<size>[-<algorithm>]/<filename>.<extension>"
+			storageDir	: %wwwDir%/media
+			rules		: []
+```
+In **service** section you can define service which is for getting, saving and deleting images
+In **route** section you can define your default route for this storage.
+The **storageDir** section is for specifying location where original images are stored.
+And the **rules** section is for configuring rules of images sizes and alogirthms used to generate images.
+
 ### Saving images
 
-In Form\Control\Presenter
+In forms or in components or even in presenters
 
 ```php
 
 	/**
 	 * @inject
-	 * @var IPub\Images\ImageStorage
+	 * @var IPub\Images\ImageLoader
 	 */
-	public $storage;
+	public $imagesLoader;
 
 
 	public function handleUpload(Nette\Http\FileUpload $file)
 	{
-		$this->storage->upload($fileUpload); // saves to %wwwDir%/media/original/filename.jpg
+		$this->imagesLoader
+			->getStorage('nameOfYourStorage')
+				->upload($fileUpload); // saves to %storageDir%/filename.jpg
 
 		# or
 
-		$this->storage->setNamespace("products")->upload($fileUpload); // saves to %wwwDir%/media/products/original/filename.jpg
+		$this->imagesLoader
+			->getStorage('nameOfYourStorage')
+				->setNamespace("products")
+				->upload($fileUpload); // saves to %storageDir%/products/filename.jpg
 	}
 ```
 
 ### Using in Latte
 
 ```html
-<a href="{img products/filename.jpg}"><img n:img="filename.jpg, 200x200, fill" /></a>
+<a href="{src 'products/filename.jpg'}"><img n:src="'filename.jpg', '200x200', 'fill'" /></a>
 ```
 
 output:
 
 ```html
-<a href="/media/products/original/filename.jpg"><img n:img="/media/200x200_fill/filename.jpg" /></a>
+<a href="/images/products/original/filename.jpg"><img n:img="/images/200x200-fill/filename.jpg" /></a>
 ```
 
 ### Resizing flags
