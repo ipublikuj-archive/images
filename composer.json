@@ -42,7 +42,7 @@
 			"IPub\\Images\\": "src/"
 		},
 		"classmap": [
-			"src/IPub/AssetsLoader/Application/Presenter.php"
+			"src/IPub/Images/Application/Presenter.php"
 		]
 	}
 }
