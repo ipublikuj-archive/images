@@ -20,6 +20,7 @@ use Latte\Engine;
 
 use IPub;
 use IPub\Images;
+use IPub\Images\Image;
 
 if (!function_exists('id') && PHP_VERSION_ID < 50400) { # workaround for php < 5.4
 	function id($obj) { return $obj; }
@@ -49,7 +50,7 @@ class Helpers extends Nette\Object
 	 */
 	public function loader($method)
 	{
-		if ( method_exists($this, $method) ) {
+		if (method_exists($this, $method)) {
 			return callback($this, $method);
 		}
 	}
@@ -107,15 +108,15 @@ class Helpers extends Nette\Object
 	/**
 	 * @param string $file
 	 *
-	 * @return Images\Size
+	 * @return Image\Size
 	 */
 	public function fromString($file)
 	{
 		if (PHP_VERSION_ID < 50400) {
-			return id(new Images\Image($file))->getSize();
+			return id(new Image\Image($file))->getSize();
 		}
 
-		return (new Images\Image($file))->getSize();
+		return (new Image\Image($file))->getSize();
 	}
 
 	/**

@@ -1,6 +1,6 @@
 <?php
 /**
- * DefaultValidator.php
+ * Validator.php
  *
  * @copyright	More in license.md
  * @license		http://www.ipublikuj.eu
@@ -19,7 +19,7 @@ use Nette;
 /**
  * Copyright (c) dotBlue (http://dotblue.net)
  */
-class DefaultValidator extends Nette\Object implements IValidator
+class Validator extends Nette\Object implements IValidator
 {
 	/**
 	 * @var array[]

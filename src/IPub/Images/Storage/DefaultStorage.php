@@ -33,16 +33,6 @@ class DefaultStorage extends Nette\Object implements IStorage
 	private $storageDir;
 
 	/**
-	 * @var string
-	 */
-	private $webDir;
-
-	/**
-	 * @var string
-	 */
-	private $originalPrefix = "original";
-
-	/**
 	 * @var string|null
 	 */
 	private $namespace = NULL;
@@ -53,22 +43,16 @@ class DefaultStorage extends Nette\Object implements IStorage
 	private $application;
 
 	/**
-	 * @var Application\Routers\Route
-	 */
-	private $route;
-
-	/**
 	 * @var Validators\IValidator
 	 */
 	private $validator;
 
 	/**
 	 * @param string $storageDir
-	 * @param Application\Routers\Route $route
+	 * @param Validators\Validator $validator
 	 * @param Application\Application $application
-	 * @param Validators\DefaultValidator $validator
 	 */
-	public function __construct($storageDir, Application\Routers\Route $route, Application\Application $application, Validators\DefaultValidator $validator)
+	public function __construct($storageDir, Validators\Validator $validator, Application\Application $application)
 	{
 		if (!is_dir($storageDir)) {
 			Utils\FileSystem::createDir($storageDir);
@@ -76,7 +60,6 @@ class DefaultStorage extends Nette\Object implements IStorage
 		$this->storageDir = $storageDir;
 
 		$this->application = $application;
-		$this->route = $route;
 		$this->validator = $validator;
 	}
 
@@ -86,32 +69,6 @@ class DefaultStorage extends Nette\Object implements IStorage
 	public function getValidator()
 	{
 		return $this->validator;
-	}
-
-	/**
-	 * @param string $dir
-	 *
-	 * @return $this
-	 *
-	 * @throw Exceptions\DirectoryNotFoundException
-	 */
-	public function setWebDir($dir)
-	{
-		if (!is_dir($dir)) {
-			throw new Exceptions\DirectoryNotFoundException("Directory '$dir' does not exist.");
-		}
-
-		$this->webDir = $dir;
-
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getWebDir()
-	{
-		return $this->webDir;
 	}
 
 	/**
@@ -138,26 +95,6 @@ class DefaultStorage extends Nette\Object implements IStorage
 	public function getStorageDir()
 	{
 		return $this->storageDir;
-	}
-
-	/**
-	 * @param string $originalPrefix
-	 *
-	 * @return $this
-	 */
-	public function setOriginalPrefix($originalPrefix)
-	{
-		$this->originalPrefix = $originalPrefix;
-
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getOriginalPrefix()
-	{
-		return $this->originalPrefix;
 	}
 
 	/**
@@ -226,7 +163,7 @@ class DefaultStorage extends Nette\Object implements IStorage
 	public function get($filename)
 	{
 		if ($absoluteName = realpath($this->getStorageDir() . DIRECTORY_SEPARATOR . $this->getNamespace() . DIRECTORY_SEPARATOR . $filename)) {
-			return new Image\Image($absoluteName, $this);
+			return new Image\Image($absoluteName);
 		}
 
 		return NULL;
@@ -238,12 +175,12 @@ class DefaultStorage extends Nette\Object implements IStorage
 	 *
 	 * @return Image\Image
 	 *
-	 * @throws Nette\InvalidArgumentException
+	 * @throws Exceptions\InvalidArgumentException
 	 */
 	public function upload(Http\FileUpload $file, $namespace)
 	{
 		if (!$file->isOk() || !$file->isImage()) {
-			throw new Nette\InvalidArgumentException;
+			throw new Exceptions\InvalidArgumentException;
 		}
 
 		// Create filename with path
@@ -251,7 +188,7 @@ class DefaultStorage extends Nette\Object implements IStorage
 
 		$file->move($absoluteName);
 
-		$image = new Image\Image($absoluteName, $this);
+		$image = new Image\Image($absoluteName);
 
 		return $image;
 	}
@@ -270,7 +207,7 @@ class DefaultStorage extends Nette\Object implements IStorage
 
 		file_put_contents($absoluteName, $content);
 
-		$image = new Image\Image($absoluteName, $this);
+		$image = new Image\Image($absoluteName);
 
 		return $image;
 	}
@@ -304,7 +241,7 @@ class DefaultStorage extends Nette\Object implements IStorage
 	 */
 	public function getOriginalFile($filename)
 	{
-		return realpath($this->getStorageDir() . DIRECTORY_SEPARATOR . ($this->getNamespace() ? $this->getNamespace() . DIRECTORY_SEPARATOR : '') . $this->originalPrefix . DIRECTORY_SEPARATOR . $filename);
+		return realpath($this->getStorageDir() . DIRECTORY_SEPARATOR . ($this->getNamespace() ? $this->getNamespace() . DIRECTORY_SEPARATOR : '') . $filename);
 	}
 
 	/**
@@ -321,7 +258,7 @@ class DefaultStorage extends Nette\Object implements IStorage
 		$file = new \SplFileInfo($filename);
 
 		// Generate image url
-		return $this->getPresenter()->link(':'. $this->route->targetPresenter .':', [
+		return $this->getPresenter()->link(':IPub:Images:', [
 			'storage'   => (string) $this,
 			'namespace' => $this->getNamespace(),
 			'filename'  => basename($file->getBasename(), '.'. $file->getExtension()),
@@ -341,7 +278,7 @@ class DefaultStorage extends Nette\Object implements IStorage
 	{
 		do {
 			$name = Utils\Random::generate(10) . '.' . $filename;
-		} while (file_exists($absoluteName = $this->getStorageDir() . DIRECTORY_SEPARATOR . $namespace . DIRECTORY_SEPARATOR . $this->originalPrefix . DIRECTORY_SEPARATOR . $name));
+		} while (file_exists($absoluteName = $this->getStorageDir() . DIRECTORY_SEPARATOR . $namespace . DIRECTORY_SEPARATOR . $name));
 
 		return realpath($absoluteName);
 	}

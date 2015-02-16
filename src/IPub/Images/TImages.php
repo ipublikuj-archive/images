@@ -31,10 +31,14 @@ trait TImages
 	private $imgHelpers;
 
 	/**
+	 * @param ImagesLoader $imagesLoader
 	 * @param Templating\Helpers $imgHelpers
 	 */
-	public function injectImgHelpers(Templating\Helpers $imgHelpers)
-	{
+	public function injectImages(
+		ImagesLoader $imagesLoader,
+		Templating\Helpers $imgHelpers
+	) {
+		$this->imagesLoader = $imagesLoader;
 		$this->imgHelpers = $imgHelpers;
 	}
 }

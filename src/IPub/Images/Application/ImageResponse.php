@@ -30,11 +30,17 @@ class ImageResponse extends Nette\Object implements Application\IResponse
 	private $filePath;
 
 	/**
+	 * @var string
+	 */
+	private $etag;
+
+	/**
 	 * @param string $filePath
 	 */
-	public function __construct($filePath)
+	public function __construct($filePath, $eTag = NULL)
 	{
 		$this->filePath = $filePath;
+		$this->etag = $eTag;
 	}
 
 	/**

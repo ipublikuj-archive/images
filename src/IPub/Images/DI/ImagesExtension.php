@@ -18,8 +18,6 @@ use Nette;
 use Nette\DI;
 use Nette\PhpGenerator as Code;
 
-use Tracy;
-
 class ImagesExtension extends DI\CompilerExtension
 {
 	/**
@@ -28,9 +26,12 @@ class ImagesExtension extends DI\CompilerExtension
 	private $defaults = [
 		'storage' => [
 			'default' => [
-				'service'       => '@images.storage.default',
+				'service'       => NULL,
+				'class'         => 'IPub\Images\Storage\DefaultStorage',
 				'route'         => '/images[/<namespace .+>]/<size>[-<algorithm>]/<filename>.<extension>',
-				'storageDir'    => '%wwwDir%/media',
+				'defaults'      => [
+					'storageDir' => '%wwwDir%/media',
+				],
 				'rules'         => [],
 			],
 		],
@@ -49,35 +50,51 @@ class ImagesExtension extends DI\CompilerExtension
 		$builder->addDefinition($this->prefix('filesBrowser'))
 			->setClass('IPub\Images\Files\Browser');
 
-		// Images generator
-		$builder->addDefinition($this->prefix('generator'))
-			->setClass('IPub\Images\Generator', [
+		// Images presenter
+		$builder->addDefinition($this->prefix('presenter'))
+			->setClass('IPub\IPubModule\ImagesPresenter', [
 				$config['wwwDir'],
 			]);
 
-		// Create default storage
-		$builder->addDefinition($this->prefix('storage.default'))
-			->setClass('IPub\Images\Storage\DefaultStorage', [$config['storage']['default']['storageDir'], $this->prefix('@route.default')])
-			->addSetup('$service->setWebDir(?)', [$config['wwwDir']]);
-
 		// Create default storage validator
 		$builder->addDefinition($this->prefix('validator.default'))
-			->setClass('IPub\Images\Validators\DefaultValidator');
+			->setClass('IPub\Images\Validators\Validator');
 
 		foreach($config['storage'] as $storageName => $storageParams) {
+			if (!$storageParams['service'] && isset($storageParams['class']) && class_exists($storageParams['class'])) {
+				$builder->addDefinition($this->prefix('storage.'. $storageName))
+					->setClass($storageParams['class'])
+					->setArguments(array_values($storageParams['defaults']));
+
+				$storageParams['service'] = '@'. $this->prefix('storage.'. $storageName);
+			}
+
 			// Add storage to loader
 			$loader->addSetup('registerStorage', [$storageParams['service']]);
 
 			if ($storageParams['route']) {
-				// Create storage route for images
-				$builder->addDefinition($this->prefix('route.' . $storageName))
-					->setClass('IPub\Images\Application\Route', [$storageParams['route']])
-					->setAutowired(FALSE)
-					->setInject(FALSE);
+				$mask = $metadata = NULL;
 
-				// Add route to router
-				$builder->getDefinition('router')
-					->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', [$this->prefix('@route.' . $storageName)]);
+				if (is_string($storageParams['route'])) {
+					$mask = $storageParams['route'];
+					$metadata = [];
+
+				} else if (is_array($storageParams['route'])) {
+					$mask = $storageParams['route'][0];
+					$metadata = $storageParams['route'][1];
+				}
+
+				if ($mask) {
+					// Create storage route for images
+					$builder->addDefinition($this->prefix('route.' . $storageName))
+						->setClass('IPub\Images\Application\Route', [$mask, $metadata])
+						->setAutowired(FALSE)
+						->setInject(FALSE);
+
+					// Add route to router
+					$builder->getDefinition('router')
+						->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', [$this->prefix('@route.' . $storageName)]);
+				}
 			}
 
 			foreach ($storageParams['rules'] as $rule) {

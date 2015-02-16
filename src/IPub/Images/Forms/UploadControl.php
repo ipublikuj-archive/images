@@ -19,7 +19,7 @@ use Nette\Forms;
 use Nette\Utils;
 use Nette\InvalidStateException;
 
-class UploadControl extends \Nette\Forms\Controls\BaseControl
+class UploadControl extends Forms\Controls\BaseControl
 {
 	/**
 	 * @var array of function (UploadControl $control, Http\FileUpload[] $files)

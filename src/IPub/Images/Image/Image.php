@@ -25,11 +25,6 @@ use IPub\Images\Storage;
 class Image extends Nette\Object
 {
 	/**
-	 * @var Storage\IStorage
-	 */
-	private $storage;
-
-	/**
 	 * @var string
 	 */
 	private $file;
@@ -41,13 +36,11 @@ class Image extends Nette\Object
 
 	/**
 	 * @param string $file
-	 * @param Storage\IStorage $storage
 	 */
-	public function __construct($file, Storage\IStorage $storage)
+	public function __construct($file)
 	{
 		$this->file	= $file;
 		$this->size	= Size::fromFile($file);
-		$this->storage = $storage;
 	}
 
 	/**
