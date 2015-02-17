@@ -24,11 +24,11 @@ class ImagesExtension extends DI\CompilerExtension
 	 * @var array
 	 */
 	private $defaults = [
+		'routes' => [],
 		'storage' => [
 			'default' => [
 				'service'       => NULL,
 				'class'         => 'IPub\Images\Storage\DefaultStorage',
-				'route'         => '/images[/<namespace .+>]/<size>[-<algorithm>]/<filename>.<extension>',
 				'defaults'      => [
 					'storageDir' => '%wwwDir%/media',
 				],
@@ -60,6 +60,25 @@ class ImagesExtension extends DI\CompilerExtension
 		$builder->addDefinition($this->prefix('validator.default'))
 			->setClass('IPub\Images\Validators\Validator');
 
+		$i = 0;
+		foreach ($config['routes'] as $mask => $metadata) {
+			if (!is_array($metadata)) {
+				$mask = $metadata;
+				$metadata = [];
+			}
+
+			$builder->addDefinition($this->prefix('route.' . $i))
+				->setClass('IPub\Images\Application\Route', [$mask, $metadata])
+				->setAutowired(FALSE)
+				->setInject(FALSE);
+
+			// Add route to router
+			$builder->getDefinition('router')
+				->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', [$this->prefix('@route.' . $i)]);
+
+			$i++;
+		}
+
 		foreach($config['storage'] as $storageName => $storageParams) {
 			if (!$storageParams['service'] && isset($storageParams['class']) && class_exists($storageParams['class'])) {
 				$builder->addDefinition($this->prefix('storage.'. $storageName))
@@ -71,31 +90,6 @@ class ImagesExtension extends DI\CompilerExtension
 
 			// Add storage to loader
 			$loader->addSetup('registerStorage', [$storageParams['service']]);
-
-			if ($storageParams['route']) {
-				$mask = $metadata = NULL;
-
-				if (is_string($storageParams['route'])) {
-					$mask = $storageParams['route'];
-					$metadata = [];
-
-				} else if (is_array($storageParams['route'])) {
-					$mask = $storageParams['route'][0];
-					$metadata = $storageParams['route'][1];
-				}
-
-				if ($mask) {
-					// Create storage route for images
-					$builder->addDefinition($this->prefix('route.' . $storageName))
-						->setClass('IPub\Images\Application\Route', [$mask, $metadata])
-						->setAutowired(FALSE)
-						->setInject(FALSE);
-
-					// Add route to router
-					$builder->getDefinition('router')
-						->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', [$this->prefix('@route.' . $storageName)]);
-				}
-			}
 
 			foreach ($storageParams['rules'] as $rule) {
 				$builder->getDefinition(trim($storageParams['service'], '@'))
