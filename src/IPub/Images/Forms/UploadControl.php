@@ -14,8 +14,9 @@
 
 namespace IPub\Images\Forms;
 
-use Nette\Http;
+use Nette;
 use Nette\Forms;
+use Nette\Http;
 use Nette\Utils;
 
 use IPub;
@@ -26,7 +27,7 @@ class UploadControl extends Forms\Controls\BaseControl
 	/**
 	 * @var array of function (UploadControl $control, Http\FileUpload[] $files)
 	 */
-	public $onUpload = array();
+	public $onUpload = [];
 
 	/**
 	 * @var Http\Request
@@ -37,6 +38,11 @@ class UploadControl extends Forms\Controls\BaseControl
 	 * @var Http\Response
 	 */
 	private $httpResponse;
+
+	/**
+	 * @var bool
+	 */
+	private static $registered = FALSE;
 
 	/**
 	 * @param NULL|string $label
@@ -50,7 +56,7 @@ class UploadControl extends Forms\Controls\BaseControl
 	}
 
 	/**
-	 * @param \Nette\ComponentModel\Container $parent
+	 * @param Nette\ComponentModel\Container $parent
 	 *
 	 * @return void
 	 *
@@ -65,7 +71,7 @@ class UploadControl extends Forms\Controls\BaseControl
 
 			$parent->getElementPrototype()->enctype = 'multipart/form-data';
 
-		} else if ($parent instanceof \Nette\Application\UI\Presenter) {
+		} else if ($parent instanceof Nette\Application\UI\Presenter) {
 			if (!$this->httpRequest) {
 				$this->httpRequest	= $parent->getContext()->httpRequest;
 				$this->httpResponse	= $parent->getContext()->httpResponse;
@@ -101,11 +107,11 @@ class UploadControl extends Forms\Controls\BaseControl
 				}
 
 			} else {
-				$this->value = array(new Http\FileUpload($value));
+				$this->value = [new Http\FileUpload($value)];
 			}
 
 		} else if ($value instanceof Http\FileUpload) {
-			$this->value = array($value);
+			$this->value = [$value];
 
 		} else {
 			$this->value = new Http\FileUpload(NULL);
@@ -139,7 +145,7 @@ class UploadControl extends Forms\Controls\BaseControl
 	}
 
 	/**
-	 * @return \Nette\Utils\Html
+	 * @return Utils\Html
 	 */
 	public function getControl()
 	{
@@ -185,10 +191,19 @@ class UploadControl extends Forms\Controls\BaseControl
 	 */
 	public static function register($method = 'addImageUpload')
 	{
+		// Check for multiple registration
+		if (static::$registered) {
+			throw new Nette\InvalidStateException('Image upload control already registered.');
+		}
+
+		static::$registered = TRUE;
+
 		$class = function_exists('get_called_class')?get_called_class():__CLASS__;
-		\Nette\Forms\Container::extensionMethod(
-			$method, function (\Nette\Forms\Container $container, $name, $label = NULL) use ($class) {
-				return $container[$name] = new $class($label);
+		Forms\Container::extensionMethod(
+			$method, function (Forms\Container $form, $name, $label = NULL) use ($class) {
+				$component = new $class($label);
+				$form->addComponent($component, $name);
+				return $component;
 			}
 		);
 	}
