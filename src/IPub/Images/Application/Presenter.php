@@ -145,11 +145,15 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 
 		// Extract size
 		$width = $height = 0;
+		$size = Utils\Strings::lower($size);
 		if (strpos($size, 'x') !== FALSE) {
 			list($width, $height) = explode("x", $size);
 
 		} else if ($size != 'original') {
 			$width = (int) $size;
+
+		} else if ($size == 'original') {
+			$width = $height = NULL;
 		}
 
 		// Extract algorithm
