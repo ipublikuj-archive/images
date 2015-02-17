@@ -55,7 +55,7 @@ class Macros extends MacroSet
 	 */
 	public function macroSrc(MacroNode $node, PhpWriter $writer)
 	{
-		return $writer->write('echo %escape(%modify($template->getImagesLoaderService()->request(IPub\Images\Latte\Macros::prepareArguments([' . $node->args . ']))))');
+		return $writer->write('echo %escape(%modify($template->getImagesLoaderService()->request(IPub\Images\Latte\Macros::prepareArguments([%node.args]))))');
 	}
 
 	/**
