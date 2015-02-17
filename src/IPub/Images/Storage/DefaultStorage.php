@@ -21,6 +21,7 @@ use Nette\Utils;
 
 use IPub;
 use IPub\Images;
+use IPub\Images\Files;
 use IPub\Images\Exceptions;
 use IPub\Images\Image;
 use IPub\Images\Validators;
@@ -48,6 +49,11 @@ class DefaultStorage extends Nette\Object implements IStorage
 	private $validator;
 
 	/**
+	 * @var Files\Browser
+	 */
+	private $browser;
+
+	/**
 	 * @param string $storageDir
 	 * @param Validators\Validator $validator
 	 * @param Application\Application $application
@@ -61,6 +67,8 @@ class DefaultStorage extends Nette\Object implements IStorage
 
 		$this->application = $application;
 		$this->validator = $validator;
+
+		$this->browser = new Files\Browser($this);
 	}
 
 	/**

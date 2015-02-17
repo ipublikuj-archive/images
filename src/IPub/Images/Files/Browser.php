@@ -14,44 +14,26 @@
 
 namespace IPub\Images\Files;
 
-use IPub\Images\Storage\DefaultStorage;
 use Nette;
-use Nette\Utils\Finder,
-	Nette\Utils\Strings;
+use Nette\Utils;
 
 use IPub;
 use IPub\Images\Exceptions;
+use IPub\Images\Storage;
 
 class Browser extends Nette\Object
 {
 	/**
-	 * @var string
+	 * @var Storage\IStorage
 	 */
-	private $assetsDir;
+	private $storage;
 
 	/**
-	 * @var array
+	 * @param Storage\IStorage $storage
 	 */
-	private $generatedDirs;
-
-	/**
-	 * @var string
-	 */
-	private $originalPrefix;
-
-	/**
-	 * @param ImagesLoader $imagePipe
-	 */
-	public function __construct()
+	public function __construct(Storage\IStorage $storage)
 	{
-		/*
-		$this->assetsDir		= $imagePipe->getAssetsDir();
-		$this->originalPrefix	= $imagePipe->getOriginalPrefix();
-		$this->generatedDirs	= array(
-			$imagePipe->getOriginalPrefix(),
-			'[0-9]_[0-9]*x[0-9]*'
-		);
-		*/
+		$this->storage = $storage;
 	}
 
 	/**
@@ -63,11 +45,11 @@ class Browser extends Nette\Object
 	 */
 	public function getNamespaceFiles($namespace = NULL)
 	{
-		$files = array();
-		$imageDir = $this->assetsDir . ($namespace ? DIRECTORY_SEPARATOR . $namespace : "") . DIRECTORY_SEPARATOR . $this->originalPrefix;
+		$files = [];
+		$imageDir = $this->storage->getStorageDir() . ($namespace ? DIRECTORY_SEPARATOR . $namespace : "");
 
 		/** @var $file \SplFileInfo */
-		foreach (Finder::findFiles("*")->in($this->assetsDir, $imageDir) as $file) {
+		foreach (Utils\Finder::findFiles("*")->in($this->storage->getStorageDir(), $imageDir) as $file) {
 			$files[] = $file;
 		}
 
@@ -81,10 +63,10 @@ class Browser extends Nette\Object
 	 */
 	public function getDeclaredNamespaces()
 	{
-		$namespaces = array();
+		$namespaces = [];
 
 		/** @var $file \SplFileInfo */
-		foreach (Finder::findDirectories("*")->in($this->assetsDir)->exclude($this->generatedDirs) as $file) {
+		foreach (Utils\Finder::findDirectories("*")->in($this->storage->getStorageDir()) as $file) {
 			$namespaces[] = $file->getFilename();
 		}
 
@@ -100,7 +82,7 @@ class Browser extends Nette\Object
 	 */
 	public function find($param)
 	{
-		foreach (Finder::findFiles($param)->from($this->assetsDir) as $file) {
+		foreach (Utils\Finder::findFiles($param)->from($this->storage->getStorageDir()) as $file) {
 			/** @var \SplFileInfo $file */
 			return $file->getPathname();
 		}

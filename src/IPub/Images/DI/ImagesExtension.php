@@ -47,9 +47,6 @@ class ImagesExtension extends DI\CompilerExtension
 		$loader = $builder->addDefinition($this->prefix('loader'))
 			->setClass('IPub\Images\ImagesLoader');
 
-		$builder->addDefinition($this->prefix('filesBrowser'))
-			->setClass('IPub\Images\Files\Browser');
-
 		// Images presenter
 		$builder->addDefinition($this->prefix('presenter'))
 			->setClass('IPub\IPubModule\ImagesPresenter', [
