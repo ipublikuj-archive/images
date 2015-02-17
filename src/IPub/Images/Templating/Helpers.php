@@ -20,6 +20,7 @@ use Latte\Engine;
 
 use IPub;
 use IPub\Images;
+use IPub\Images\Exceptions;
 use IPub\Images\Image;
 
 if (!function_exists('id') && PHP_VERSION_ID < 50400) { # workaround for php < 5.4
@@ -108,15 +109,37 @@ class Helpers extends Nette\Object
 	/**
 	 * @param string $file
 	 *
-	 * @return Image\Size
+	 * @return Images\Size
+	 *
+	 * @throws Exceptions\InvalidArgumentException
+	 * @throws Exceptions\InvalidStateException
 	 */
 	public function fromString($file)
 	{
-		if (PHP_VERSION_ID < 50400) {
-			return id(new Image\Image($file))->getSize();
-		}
+		// Extract info from file string
+		preg_match("/\b(?P<storage>[a-zA-Z]+)\:\/\/(?:(?<namespace>[a-zA-Z0-9\/-]+)\/)?(?<name>[a-zA-Z0-9-]+).(?P<extension>[a-zA-Z]{3}+)/i", $file, $matches);
 
-		return (new Image\Image($file))->getSize();
+		if (isset($matches['storage']) && ($storage = $this->imagesLoader->getStorage($matches['storage']))) {
+			if (isset($matches['namespace']) && trim($matches['namespace'])) {
+				$storage->setNamespace(trim($matches['namespace']));
+			}
+
+			$image = $storage->get($matches['name'] .'.'. $matches['extension']);
+
+			if ($image instanceof Image\Image) {
+				if (PHP_VERSION_ID < 50400) {
+					return id($image)->getSize();
+				}
+
+				return $image->getSize();
+
+			} else {
+				throw new Exceptions\FileNotFoundException("Image: '$file' in storage: '$storage' was not found.");
+			}
+
+		} else {
+			throw new Exceptions\InvalidStateException("Images storage for file: '$file' was not found.");
+		}
 	}
 
 	/**
