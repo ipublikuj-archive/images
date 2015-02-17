@@ -1,6 +1,6 @@
 <?php
 /**
- * UploadControl.php
+ * ImageUploadControl.php
  *
  * @copyright	More in license.md
  * @license		http://www.ipublikuj.eu
@@ -12,7 +12,7 @@
  * @date		06.04.14
  */
 
-namespace IPub\Images\Forms;
+namespace IPub\Images\Forms\Controls;
 
 use Nette;
 use Nette\Forms;
@@ -22,7 +22,7 @@ use Nette\Utils;
 use IPub;
 use IPub\Images\Exceptions;
 
-class UploadControl extends Forms\Controls\BaseControl
+class ImageUploadControl extends Forms\Controls\BaseControl
 {
 	/**
 	 * @var array of function (UploadControl $control, Http\FileUpload[] $files)

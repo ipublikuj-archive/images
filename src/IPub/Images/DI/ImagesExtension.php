@@ -133,7 +133,7 @@ class ImagesExtension extends DI\CompilerExtension
 		parent::afterCompile($class);
 
 		$initialize = $class->methods['initialize'];
-		$initialize->addBody('IPub\Images\Forms\UploadControl::register();');
+		$initialize->addBody('IPub\Images\Forms\Controls\ImageUploadControl::register();');
 	}
 
 	/**
