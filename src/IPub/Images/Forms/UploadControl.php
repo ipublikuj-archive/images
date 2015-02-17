@@ -17,7 +17,9 @@ namespace IPub\Images\Forms;
 use Nette\Http;
 use Nette\Forms;
 use Nette\Utils;
-use Nette\InvalidStateException;
+
+use IPub;
+use IPub\Images\Exceptions;
 
 class UploadControl extends Forms\Controls\BaseControl
 {
@@ -50,15 +52,15 @@ class UploadControl extends Forms\Controls\BaseControl
 	/**
 	 * @param \Nette\ComponentModel\Container $parent
 	 *
-	 * @throws \Nette\InvalidStateException
-	 *
 	 * @return void
+	 *
+	 * @throws Exceptions\InvalidStateException
 	 */
 	protected function attached($parent)
 	{
 		if ($parent instanceof Forms\Form) {
 			if ($parent->getMethod() !== Forms\Form::POST) {
-				throw new InvalidStateException('File upload requires method POST.');
+				throw new Exceptions\InvalidStateException('File upload requires method POST.');
 			}
 
 			$parent->getElementPrototype()->enctype = 'multipart/form-data';

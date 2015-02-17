@@ -19,6 +19,9 @@ use Nette;
 use Nette\Utils\Finder,
 	Nette\Utils\Strings;
 
+use IPub;
+use IPub\Images\Exceptions;
+
 class Browser extends Nette\Object
 {
 	/**
@@ -93,7 +96,7 @@ class Browser extends Nette\Object
 	 *
 	 * @return string
 	 *
-	 * @throws FileNotFoundException
+	 * @throws Exceptions\FileNotFoundException
 	 */
 	public function find($param)
 	{
@@ -102,6 +105,6 @@ class Browser extends Nette\Object
 			return $file->getPathname();
 		}
 
-		throw new FileNotFoundException("File $param not found.");
+		throw new Exceptions\FileNotFoundException("File $param not found.");
 	}
 }
