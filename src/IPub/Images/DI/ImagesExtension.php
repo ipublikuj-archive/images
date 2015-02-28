@@ -25,6 +25,7 @@ class ImagesExtension extends DI\CompilerExtension
 	 */
 	private $defaults = [
 		'routes' => [],
+		'prependRoutesToRouter' => TRUE,
 		'storage' => [],
 		'rules' => [],
 		'wwwDir' => NULL,
@@ -57,23 +58,31 @@ class ImagesExtension extends DI\CompilerExtension
 				]);
 		}
 
-		$i = 0;
-		foreach ($config['routes'] as $mask => $metadata) {
-			if (!is_array($metadata)) {
-				$mask = $metadata;
-				$metadata = [];
+		if ($config['routes']) {
+			$router = $builder->addDefinition($this->prefix('router'))
+				->setClass('Nette\Application\Routers\RouteList')
+				->addTag($this->prefix('routeList'))
+				->setAutowired(FALSE);
+
+			$i = 0;
+			foreach ($config['routes'] as $mask => $metadata) {
+				if (!is_array($metadata)) {
+					$mask = $metadata;
+					$metadata = [];
+				}
+
+				$builder->addDefinition($this->prefix('route.' . $i))
+					->setClass('IPub\Images\Application\Route', [$mask, $metadata])
+					->setAutowired(FALSE)
+					->setInject(FALSE);
+
+				// Add route to router
+				$router->addSetup('$service[] = ?', [
+					$this->prefix('@route.' . $i),
+				]);
+
+				$i++;
 			}
-
-			$builder->addDefinition($this->prefix('route.' . $i))
-				->setClass('IPub\Images\Application\Route', [$mask, $metadata])
-				->setAutowired(FALSE)
-				->setInject(FALSE);
-
-			// Add route to router
-			$builder->getDefinition('router')
-				->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', [$this->prefix('@route.' . $i)]);
-
-			$i++;
 		}
 
 		foreach ($config['storage'] as $name => $provider) {
@@ -108,6 +117,30 @@ class ImagesExtension extends DI\CompilerExtension
 			->addSetup('addFilter', array('isWider', array($this->prefix('@helpers'), 'isWider')))
 			->addSetup('addFilter', array('fromString', array($this->prefix('@helpers'), 'fromString')))
 			->addSetup('addFilter', array('getImagesLoaderService', array($this->prefix('@helpers'), 'getImagesLoaderService')));
+	}
+
+	public function beforeCompile()
+	{
+		$config = $this->getConfig($this->defaults);
+		$builder = $this->getContainerBuilder();
+
+		if ($config['prependRoutesToRouter']) {
+			$router = $builder->getByType('Nette\Application\IRouter');
+
+			if ($router) {
+				if (!$router instanceof DI\ServiceDefinition) {
+					$router = $builder->getDefinition($router);
+				}
+
+			} else {
+				$router = $builder->getDefinition('router');
+			}
+
+			$router->addSetup('IPub\Images\Helpers::prependRoute', [
+				'@self',
+				$this->prefix('@router'),
+			]);
+		}
 	}
 
 	/**
