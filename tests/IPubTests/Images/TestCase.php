@@ -74,7 +74,7 @@ class TestCase extends Tester\TestCase
 
 		$config->addParameters([
 			"wwwDir" => realpath(__DIR__ . DIRECTORY_SEPARATOR .'web'),
-			"mediaDir" => realpath(__DIR__ . DIRECTORY_SEPARATOR .'media'),
+			"uploadDir" => realpath(__DIR__ . DIRECTORY_SEPARATOR .'upload'),
 		]);
 
 		Images\DI\ImagesExtension::register($config);

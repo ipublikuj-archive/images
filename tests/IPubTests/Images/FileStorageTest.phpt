@@ -44,15 +44,13 @@ class FileStorageTest extends TestCase
 		$loader = $this->container->getService('images.loader');
 		$storage = $loader->getStorage('default');
 
-		$storage->setStorageDir(TEMP_DIR);
-		Assert::same(TEMP_DIR, $storage->getStorageDir());
+		Assert::same(__DIR__ . DIRECTORY_SEPARATOR .'upload', $storage->getStorageDir());
 
 		$storage->setNamespace('testing/namespace');
-		mkdir(TEMP_DIR . DIRECTORY_SEPARATOR .'media');
 		Assert::same('testing/namespace', $storage->getNamespace());
 		Assert::false($storage->namespaceExists('fake/namespace'));
 		Assert::true($storage->namespaceExists('media'));
-		Assert::same(TEMP_DIR . DIRECTORY_SEPARATOR .'media', $storage->getNamespacePath('media'));
+		Assert::same(__DIR__ . DIRECTORY_SEPARATOR .'upload' . DIRECTORY_SEPARATOR .'media', $storage->getNamespacePath('media'));
 
 		$namespaceStorage = $storage->createNamespace('media');
 		Assert::same('media', $namespaceStorage->getNamespace());
@@ -65,7 +63,6 @@ class FileStorageTest extends TestCase
 
 		$loader = $this->container->getService('images.loader');
 		$storage = $loader->getStorage('default');
-		$storage->setStorageDir(TEMP_DIR);
 		$storage->setPresenter($presenter);
 
 		$file = new Nette\Http\FileUpload([
