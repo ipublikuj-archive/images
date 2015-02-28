@@ -1,25 +1,41 @@
+# Quickstart
 
-Package contains trait, which you will have to use in class, where you want to access to the images loader and helpers. This works only for PHP 5.4+, for older version you can simply copy trait content and paste it into class where you want to use it.
+This extension brings you ability to upload and store images in your application and serve them on-demand to your visitors.
 
-```php
-<?php
-
-class BasePresenter extends Nette\Application\UI\Presenter
-{
-
-	use IPub\Images\TImages;
-
-}
-```
-
-
-## Usage
+## Concept
 
 Basic concept of this extensions is to create several storage places for each module in you application. Sou you can have e-shop images storage for e-shop module, or users avatars storage to store users avatars.
 
 Second important think is, all storage services can store files outside of document root folder even on some cloud servers like AWS or own cloud.
 
-### Basic setting up
+## Installation
+
+The best way to install ipub/flickr is using  [Composer](http://getcomposer.org/):
+
+```json
+{
+	"require": {
+		"ipub/images": "dev-master"
+	}
+}
+```
+
+or
+
+```sh
+$ composer require ipub/images:@dev
+```
+
+After that you have to register extension in config.neon.
+
+```neon
+extensions:
+	flickr: IPub\Images\DI\ImagesExtension
+```
+
+## Usage
+
+### Basic configuration
 
 At first you have to configure extension route:
 
@@ -51,64 +67,63 @@ So you can define for example secured route as default or other params.
 
 Second mandatory parameter is **wwwDir**. With this parameter you have to specify absolute path to your document root folder where will be saved generated images. 
 
+> By default all these routes will be prepended before your other routes - assuming you use `Nette\Application\Routers\RouteList` as your root router. You can disable this by setting `prependRoutesToRouter: false`. Then it's your responsibility to plug extension router (service `images.router`) to your routing implementation.
+
 ### Setting up default storage
 
-This extension has default file storage with this configuration:
+This extension has default abstract file storage and you have to create service for this storage:
+
+```php
+class YourFileStorage extends \IPub\Images\Storage\FileStorage
+{
+	public function __toString()
+	{
+		return 'storageName'; // Here you have to define your storage name. This name have to be unique
+	}
+}
+```
+
+And now you can register this new storage into services:
+
+```neon
+services
+	myImagesStorage:
+		class: Your\Namespace\YourFileStorage
+		arguments: [%storageDir%, %wwwDir%]
+```
+
+This default file storage has two mandatory parameters:
+
+* **storageDir** - absolute path to your storage directory where will be stored original files
+* **wwwDir** - absolute path to you document root folder or some sub-folder which is in document root 
+
+So when your images storage is defined, configured and registered as service, you have to register this storage into extension:
 
 ```neon
 images:
-	storage:
-		default:
-			class		: IPub\Images\Storage\DefaultStorage
-			defaults	: 
-				storageDir : %wwwDir%/media
-			rules		: []
-```
-
-In **service** section you can define service which is for getting, saving and deleting images
-In **class** section you can define class which will be used for creating service. If this section is empty, you have to fill in **service** section
-The **defaults** section you have to define all default and required arguments for creating service by class
-And the **rules** section is for configuring rules of images sizes and algorithms used to generate images.
-
-### Saving images
-
-In forms or in components or even in presenters
-
-```php
-	/**
-	 * @inject
-	 * @var IPub\Images\ImageLoader
-	 */
-	public $imagesLoader;
-
-
-	public function handleUpload(Nette\Http\FileUpload $file)
-	{
-		$this->imagesLoader
-			->getStorage('nameOfYourStorage')
-				->upload($fileUpload); // saves to %storageDir%/filename.jpg
-
-		# or
-
-		$this->imagesLoader
-			->getStorage('nameOfYourStorage')
-				->setNamespace("products")
-				->upload($fileUpload); // saves to %storageDir%/products/filename.jpg
-	}
+	storage: [default: @myImagesStorage]
 ```
 
 ### Using in Latte
 
+This extension gives you new latte macro **n:src**. Now you're ready to use it.
+
 ```html
-<a n:src="'products/filename.jpg'"><img n:src="'filename.jpg', '200x200', 'fill'" /></a>
+<a n:src="'default:://products/filename.jpg'"><img n:src="'default:://products/filename.jpg', '200x200', 'fill'" /></a>
 ```
 
 output:
 
 ```html
-<a href="/images/products/original/filename.jpg"><img n:img="/images/200x200-fill/filename.jpg" /></a>
+<a href="/images/products/original/filename.jpg"><img n:img="/images/products/200x200-fill/filename.jpg" /></a>
 ```
 
-### Resizing flags
+Parameters of this macro are:
+
+* **path** - full path to the image with storage name eg.: *eshopStorage://some/namespace/product-image.jpg*
+* **size** - image size. It could be only width or width and height eg.: *150* or *50x50*
+* **algorithm** - (optional) resize algorithm which is used to convert image
+
+### Resizing algorithm
 
 For resizing (third argument) you can use these keywords - `fit`, `fill`, `exact`, `stretch`, `shrink_only`. For details see comments above [these constants](http://api.nette.org/2.0/source-common.Image.php.html#105)
