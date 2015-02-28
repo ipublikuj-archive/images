@@ -1,0 +1,5 @@
+	# Images helper
+	images:
+		routes:
+			- "/images[/<namespace .+>]/<size>[-<algorithm>]/<filename>.<extension>"
+		wwwDir: %wwwDir%

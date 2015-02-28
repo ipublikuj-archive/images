@@ -1,0 +1,18 @@
+nette:
+	application:
+		mapping:
+			*: IPubTests\Images\*Presenter
+
+images:
+	storage: [default: @imagesStorage]
+
+services:
+	# Test presenter
+	presenters.test:
+		class: IPubTests\Images\TestPresenter
+
+	# Default image storage
+	imagesStorage:
+		class: IPubTests\Images\DefaultImagesStorage
+		arguments: [%mediaDir%, %wwwDir%]
+		tags: [cms.images]
