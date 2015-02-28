@@ -25,16 +25,8 @@ class ImagesExtension extends DI\CompilerExtension
 	 */
 	private $defaults = [
 		'routes' => [],
-		'storage' => [
-			'default' => [
-				'service'       => NULL,
-				'class'         => 'IPub\Images\Storage\DefaultStorage',
-				'defaults'      => [
-					'storageDir' => '%wwwDir%/media',
-				],
-				'rules'         => [],
-			],
-		],
+		'storage' => [],
+		'rules' => [],
 		'wwwDir' => NULL,
 	];
 
@@ -54,8 +46,16 @@ class ImagesExtension extends DI\CompilerExtension
 			]);
 
 		// Create default storage validator
-		$builder->addDefinition($this->prefix('validator.default'))
+		$validator = $builder->addDefinition($this->prefix('validator.default'))
 			->setClass('IPub\Images\Validators\Validator');
+
+		foreach ($config['rules'] as $rule) {
+			$validator->addSetup('$service->addRule(?, ?, ?)', [
+					$rule['width'],
+					$rule['height'],
+					isset($rule['algorithm']) ? $rule['algorithm'] : NULL,
+				]);
+		}
 
 		$i = 0;
 		foreach ($config['routes'] as $mask => $metadata) {
@@ -76,26 +76,11 @@ class ImagesExtension extends DI\CompilerExtension
 			$i++;
 		}
 
-		foreach($config['storage'] as $storageName => $storageParams) {
-			if (!$storageParams['service'] && isset($storageParams['class']) && class_exists($storageParams['class'])) {
-				$builder->addDefinition($this->prefix('storage.'. $storageName))
-					->setClass($storageParams['class'])
-					->setArguments(array_values($storageParams['defaults']));
-
-				$storageParams['service'] = '@'. $this->prefix('storage.'. $storageName);
-			}
-
-			// Add storage to loader
-			$loader->addSetup('registerStorage', [$storageParams['service']]);
-
-			foreach ($storageParams['rules'] as $rule) {
-				$builder->getDefinition(trim($storageParams['service'], '@'))
-					->addSetup('$service->getValidator()->addRule(?, ?, ?)', [
-						$rule['width'],
-						$rule['height'],
-						isset($rule['algorithm']) ? $rule['algorithm'] : NULL,
-					]);
-			}
+		foreach ($config['storage'] as $name => $provider) {
+			$this->compiler->parseServices($builder, [
+				'services' => [$this->prefix('storage' . $name) => $provider],
+			]);
+			$loader->addSetup('registerStorage', [$this->prefix('@storage' . $name)]);
 		}
 
 		// Update presenters mapping
