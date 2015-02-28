@@ -104,12 +104,18 @@ images:
 	storage: [default: @myImagesStorage]
 ```
 
+You can register as manny storage as you need.
+
+### Namespaces
+
+Namespaces can be understand as virtual folders, so you can split your images into folders. Eg. if you want to use this extension for e-shop products images and as namespace can be used product name or category.
+
 ### Using in Latte
 
 This extension gives you new latte macro **n:src**. Now you're ready to use it.
 
 ```html
-<a n:src="'default:://products/filename.jpg'"><img n:src="'default:://products/filename.jpg', '200x200', 'fill'" /></a>
+<a n:src="'storageName:://products/filename.jpg'"><img n:src="'storageName:://products/filename.jpg', '200x200', 'fill'" /></a>
 ```
 
 output:
