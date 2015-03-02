@@ -104,19 +104,6 @@ class ImagesExtension extends DI\CompilerExtension
 			->setClass('IPub\Images\Templating\Helpers')
 			->setFactory($this->prefix('@loader') . '::createTemplateHelpers')
 			->setInject(FALSE);
-
-		// Install extension latte macros
-		$latteFactory = $builder->hasDefinition('nette.latteFactory')
-			? $builder->getDefinition('nette.latteFactory')
-			: $builder->getDefinition('nette.latte');
-
-		$latteFactory
-			->addSetup('IPub\Images\Latte\Macros::install(?->getCompiler())', array('@self'))
-			->addSetup('addFilter', array('isSquare', array($this->prefix('@helpers'), 'isSquare')))
-			->addSetup('addFilter', array('isHigher', array($this->prefix('@helpers'), 'isHigher')))
-			->addSetup('addFilter', array('isWider', array($this->prefix('@helpers'), 'isWider')))
-			->addSetup('addFilter', array('fromString', array($this->prefix('@helpers'), 'fromString')))
-			->addSetup('addFilter', array('getImagesLoaderService', array($this->prefix('@helpers'), 'getImagesLoaderService')));
 	}
 
 	public function beforeCompile()
@@ -141,6 +128,17 @@ class ImagesExtension extends DI\CompilerExtension
 				$this->prefix('@router'),
 			]);
 		}
+		
+		// Install extension latte macros
+		$latteFactory = $builder->getDefinition($builder->getByType('\Nette\Bridges\ApplicationLatte\ILatteFactory') ?: 'nette.latteFactory');
+
+		$latteFactory
+			->addSetup('IPub\Images\Latte\Macros::install(?->getCompiler())', array('@self'))
+			->addSetup('addFilter', array('isSquare', array($this->prefix('@helpers'), 'isSquare')))
+			->addSetup('addFilter', array('isHigher', array($this->prefix('@helpers'), 'isHigher')))
+			->addSetup('addFilter', array('isWider', array($this->prefix('@helpers'), 'isWider')))
+			->addSetup('addFilter', array('fromString', array($this->prefix('@helpers'), 'fromString')))
+			->addSetup('addFilter', array('getImagesLoaderService', array($this->prefix('@helpers'), 'getImagesLoaderService')));
 	}
 
 	/**
