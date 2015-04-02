@@ -72,7 +72,13 @@ class ImagesLoader extends Nette\Object
 
 		} else if (strpos($size, 'x') !== FALSE) {
 			list($width, $height) = explode("x", $size);
-			$size = (int) $width .'x'. (int) $height;
+
+			if ((int) $height > 0) {
+				$size = (int) $width . 'x' . (int) $height;
+
+			} else {
+				$size = (int) $width;
+			}
 
 		} else {
 			$size = (int) $size;
