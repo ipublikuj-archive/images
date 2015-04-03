@@ -65,7 +65,7 @@ class Macros extends MacroSet
 	 */
 	public static function prepareArguments(array $macro)
 	{
-		preg_match("/\b(?P<storage>[a-zA-Z]+)\:\/\/(?:(?<namespace>[a-zA-Z0-9\/-_]+)\/)?(?<name>[a-zA-Z0-9-_]+).(?P<extension>[a-zA-Z]{3}+)/i", $macro[0], $matches);
+		preg_match("/\b(?P<storage>[a-zA-Z]+)\:\/\/(?:(?<namespace>[a-zA-Z0-9-_\/]+)\/)?(?<name>[a-zA-Z0-9-_]+).(?P<extension>[a-zA-Z]{3}+)/i", $macro[0], $matches);
 
 		$arguments = [
 			'storage'   => isset($matches['storage']) ? $matches['storage'] : NULL,
