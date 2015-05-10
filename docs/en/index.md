@@ -30,7 +30,7 @@ After that you have to register extension in config.neon.
 
 ```neon
 extensions:
-	flickr: IPub\Images\DI\ImagesExtension
+	images: IPub\Images\DI\ImagesExtension
 ```
 
 ## Usage
@@ -121,7 +121,7 @@ This extension gives you new latte macro **n:src**. Now you're ready to use it.
 output:
 
 ```html
-<a href="/images/products/original/filename.jpg"><img n:img="/images/products/200x200-fill/filename.jpg" /></a>
+<a href="/images/products/original/filename.jpg"><img src="/images/products/200x200-fill/filename.jpg" /></a>
 ```
 
 Parameters of this macro are:
