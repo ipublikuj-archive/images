@@ -115,7 +115,7 @@ Namespaces can be understand as virtual folders, so you can split your images in
 This extension gives you new latte macro **n:src**. Now you're ready to use it.
 
 ```html
-<a n:src="'storageName:://products/filename.jpg'"><img n:src="'storageName:://products/filename.jpg', '200x200', 'fill'" /></a>
+<a n:src="'storageName://products/filename.jpg'"><img n:src="'storageName://products/filename.jpg', '200x200', 'fill'" /></a>
 ```
 
 output:
