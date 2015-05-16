@@ -186,7 +186,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 					break;
 
 				default:
-					$algorithm = NULL;
+					$algorithm = ctype_digit($algorithm) ? (int) $algorithm : NULL;
 			}
 
 		} else {
