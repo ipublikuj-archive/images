@@ -3,19 +3,20 @@
 	"type"			: "library",
 	"description"	: "Image storage & generator for Nette Framework",
 	"keywords"		: ["nette", "images", "tools", "ipub", "ipublikuj", "ondemand"],
-	"homepage"		: "https://github.com/iPublikuj/images.git",
+	"homepage"		: "https://github.com/iPublikuj/images",
 	"license"		: ["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
 
-	"authors"		: [
+	"authors": [
 		{
-			"name"		: "Adam Kadlec",
+			"name"		: "iPublikuj:cms",
+			"email"		: "info@ipublikuj.eu",
 			"homepage"	: "http://www.ipublikuj.eu/"
 		}
 	],
 
 	"support": {
 		"email"		:"support@ipublikuj.eu",
-	  "issues"	:"https://github.com/iPublikuj/images/issues"
+		"issues"	:"https://github.com/iPublikuj/images/issues"
 	},
 
 	"require": {
