@@ -328,13 +328,13 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	{
 		$path = $this->getStorageDir() . DIRECTORY_SEPARATOR . ($namespace ? $namespace . DIRECTORY_SEPARATOR : '');
 
-		if (!file_exists($absoluteName = $path . $filename)) {
+		if (!is_file($absoluteName = $path . $filename)) {
 			return $absoluteName;
 		}
 
 		do {
 			$name = Utils\Random::generate(10) . '.' . $filename;
-		} while (file_exists($absoluteName = $path . $name));
+		} while (is_file($absoluteName = $path . $name));
 
 		return $absoluteName;
 	}

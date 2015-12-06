@@ -72,7 +72,7 @@ class Image extends Nette\Object
 	 */
 	public function exists()
 	{
-		return file_exists($this->file);
+		return is_file($this->file);
 	}
 
 	/**
