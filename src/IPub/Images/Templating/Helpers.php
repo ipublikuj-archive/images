@@ -34,6 +34,11 @@ use IPub\Images\Image;
 final class Helpers extends Nette\Object
 {
 	/**
+	 * Define class name
+	 */
+	const CLASS_NAME = __CLASS__;
+
+	/**
 	 * @var Images\ImagesLoader
 	 */
 	private $imagesLoader;

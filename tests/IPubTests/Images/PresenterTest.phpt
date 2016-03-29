@@ -3,14 +3,14 @@
  * Test: IPub\Images\Presenter
  * @testCase
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	Tests
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     Tests
+ * @since          1.0.0
  *
- * @date		28.02.15
+ * @date           28.02.15
  */
 
 namespace IPubTests\Images;
@@ -35,11 +35,13 @@ class PresenterTest extends TestCase
 		$presenter = $this->createPresenter();
 
 		$loader = $this->container->getService('images.loader');
+
+		/** @var Images\Storage\FileStorage $storage */
 		$storage = $loader->getStorage('default');
 		$storage->setPresenter($presenter);
 
 		// Create GET request
-		$request = new Application\Request('Test', 'GET', array('action' => 'default'));
+		$request = new Application\Request('Test', 'GET', ['action' => 'default']);
 		// & fire presenter & catch response
 		$response = $presenter->run($request);
 
@@ -56,8 +58,8 @@ class PresenterTest extends TestCase
 		// Get all <a /> elements
 		$aElements = $dq->find('a');
 
-		Assert::same('/images/original/ipublikuj-logo-large.png?storage='. (string) $storage, (string) $aElements[0]->attributes()->{'href'});
-		Assert::same('/images/50x50-4/ipublikuj-logo-large.png?storage='. (string) $storage, (string) $imgElements[0]->attributes()->{'src'});
+		Assert::same('/images/original/ipublikuj-logo-large.png?storage=' . (string) $storage, (string) $aElements[0]->attributes()->{'href'});
+		Assert::same('/images/50x50-4/ipublikuj-logo-large.png?storage=' . (string) $storage, (string) $imgElements[0]->attributes()->{'src'});
 	}
 }
 

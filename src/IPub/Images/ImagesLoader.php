@@ -34,6 +34,11 @@ use IPub\Images\Templating;
 final class ImagesLoader extends Nette\Object
 {
 	/**
+	 * Define class name
+	 */
+	const CLASS_NAME = __CLASS__;
+
+	/**
 	 * @var Storage\IStorage[]
 	 */
 	private $imagesStorage = [];

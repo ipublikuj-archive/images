@@ -27,6 +27,11 @@ use Nette;
 class Validator extends Nette\Object implements IValidator
 {
 	/**
+	 * Define class name
+	 */
+	const CLASS_NAME = __CLASS__;
+
+	/**
 	 * @var array[]
 	 */
 	private $rules = [];

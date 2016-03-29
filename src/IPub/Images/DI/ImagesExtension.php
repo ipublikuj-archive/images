@@ -22,6 +22,8 @@ use IPub;
 use IPub\Images;
 use IPub\Images\Application;
 use IPub\Images\Storage;
+use IPub\Images\Templating;
+use IPub\Images\Validators;
 
 use IPub\IPubModule;
 
@@ -53,7 +55,7 @@ class ImagesExtension extends DI\CompilerExtension
 
 		// Extension loader
 		$loader = $builder->addDefinition($this->prefix('loader'))
-			->setClass('IPub\Images\ImagesLoader');
+			->setClass(Images\ImagesLoader::CLASS_NAME);
 
 		// Images presenter
 		$builder->addDefinition($this->prefix('presenter'))
@@ -63,7 +65,7 @@ class ImagesExtension extends DI\CompilerExtension
 
 		// Create default storage validator
 		$validator = $builder->addDefinition($this->prefix('validator.default'))
-			->setClass('IPub\Images\Validators\Validator');
+			->setClass(Validators\Validator::CLASS_NAME);
 
 		foreach ($config['rules'] as $rule) {
 			$validator->addSetup('$service->addRule(?, ?, ?)', [
@@ -116,11 +118,14 @@ class ImagesExtension extends DI\CompilerExtension
 
 		// Register template helpers
 		$builder->addDefinition($this->prefix('helpers'))
-			->setClass('IPub\Images\Templating\Helpers')
+			->setClass(Templating\Helpers::CLASS_NAME)
 			->setFactory($this->prefix('@loader') . '::createTemplateHelpers')
 			->setInject(FALSE);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function beforeCompile()
 	{
 		parent::beforeCompile();
@@ -158,7 +163,7 @@ class ImagesExtension extends DI\CompilerExtension
 	}
 
 	/**
-	 * @param Code\ClassType $class
+	 * @inheritdoc
 	 */
 	public function afterCompile(Code\ClassType $class)
 	{
