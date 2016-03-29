@@ -2,14 +2,14 @@
 /**
  * Route.php
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	Application
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     Application
+ * @since          1.0.0
  *
- * @date		09.02.15
+ * @date           09.02.15
  */
 
 namespace IPub\Images\Application;
@@ -21,11 +21,29 @@ use Nette\Utils;
 use IPub;
 use IPub\Images;
 
+/**
+ * Micro-module router
+ *
+ * @package        iPublikuj:Images!
+ * @subpackage     Application
+ *
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ */
 class Route extends Application\Routers\Route
 {
+	/**
+	 * Define class name
+	 */
+	const CLASS_NAME = __CLASS__;
+
+	/**
+	 * @param string $mask
+	 * @param array $metadata
+	 * @param int $flags
+	 */
 	public function __construct($mask, $metadata = [], $flags = 0)
 	{
-		// Define micromodule presenter
+		// Define micro-module presenter
 		$metadata['presenter'] = 'IPub:Images';
 
 		parent::__construct($mask, $metadata, $flags);
@@ -41,7 +59,7 @@ class Route extends Application\Routers\Route
 	{
 		if (!$router instanceof Application\Routers\RouteList) {
 			throw new Utils\AssertionException(
-				'If you want to use IPub\Images then your main router '.
+				'If you want to use IPub\Images then your main router ' .
 				'must be an instance of Nette\Application\Routers\RouteList'
 			);
 		}
@@ -56,7 +74,7 @@ class Route extends Application\Routers\Route
 				break;
 			}
 
-			$router[$i+1] = $route;
+			$router[$i + 1] = $route;
 		}
 
 		$router[0] = $extensionRoute;

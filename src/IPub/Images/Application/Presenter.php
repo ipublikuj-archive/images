@@ -2,14 +2,14 @@
 /**
  * Presenter.php
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	Application
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     Application
+ * @since          1.0.0
  *
- * @date		09.02.15
+ * @date           09.02.15
  */
 
 namespace IPub\IPubModule;
@@ -23,8 +23,21 @@ use IPub;
 use IPub\Images;
 use IPub\Images\Exceptions;
 
+/**
+ * Micro-module presenter for handling images requests
+ *
+ * @package        iPublikuj:Images!
+ * @subpackage     Application
+ *
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ */
 class ImagesPresenter extends Nette\Object implements Application\IPresenter
 {
+	/**
+	 * Define class name
+	 */
+	const CLASS_NAME = __CLASS__;
+
 	/**
 	 * @var Http\IRequest
 	 */
@@ -46,7 +59,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	private $request;
 
 	/**
-	 * @var Images\Generator
+	 * @var Images\ImagesLoader
 	 */
 	private $imagesLoader;
 
@@ -72,9 +85,9 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 		$this->webDir = $webDir;
 
 		$this->imagesLoader = $imagesLoader;
-		$this->httpRequest  = $httpRequest;
+		$this->httpRequest = $httpRequest;
 		$this->httpResponse = $httpResponse;
-		$this->router       = $router;
+		$this->router = $router;
 	}
 
 	/**
@@ -143,45 +156,46 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	{
 		$storage = $this->imagesLoader->getStorage($storage);
 
-		// Extract size
 		$width = $height = 0;
-		$size = Utils\Strings::lower($size);
-		if (strpos($size, 'x') !== FALSE) {
-			list($width, $height) = explode("x", $size);
 
-		} else if ($size != 'original') {
+		$size = Utils\Strings::lower($size);
+
+		// Extract size
+		if (strpos($size, 'x') !== FALSE) {
+			list($width, $height) = explode('x', $size);
+
+		} elseif ($size !== 'original') {
 			$width = (int) $size;
 
-		} else if ($size == 'original') {
+		} elseif ($size === 'original') {
 			$width = $height = NULL;
 		}
 
 		// Extract algorithm
-		if ($algorithm == NULL) {
+		if ($algorithm === NULL) {
 			$algorithm = Utils\Image::FIT;
 
-		} else if (!is_int($algorithm) && !is_array($algorithm)) {
-			switch (strtolower($algorithm))
-			{
-				case "fit":
+		} elseif (!is_int($algorithm) && !is_array($algorithm)) {
+			switch (strtolower($algorithm)) {
+				case 'fit':
 					$algorithm = Utils\Image::FIT;
 					break;
 
-				case "fill":
+				case 'fill':
 					$algorithm = Utils\Image::FILL;
 					break;
 
-				case "exact":
+				case 'exact':
 					$algorithm = Utils\Image::EXACT;
 					break;
 
-				case "shrink_only":
-				case "shrinkonly":
-				case "shrink-only":
+				case 'shrink_only':
+				case 'shrinkonly':
+				case 'shrink-only':
 					$algorithm = Utils\Image::SHRINK_ONLY;
 					break;
 
-				case "stretch":
+				case 'stretch':
 					$algorithm = Utils\Image::STRETCH;
 					break;
 
@@ -198,9 +212,9 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 			throw new Application\BadRequestException;
 		}
 
-		$image = $storage
-			->setNamespace($namespace)
-			->get($filename .'.'. $extension);
+		$storage->setNamespace($namespace);
+
+		$image = $storage->get($filename . '.' . $extension);
 
 		if (!$image instanceof Images\Image\Image && !$image instanceof Utils\Image) {
 			$this->httpResponse->setHeader('Content-Type', 'image/jpeg');
@@ -209,7 +223,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 			exit;
 		}
 
-		$destination = $this->webDir . '/' . $this->httpRequest->getUrl()->getPath();
+		$destination = $this->webDir . DIRECTORY_SEPARATOR . $this->httpRequest->getUrl()->getPath();
 		$dirname = dirname($destination);
 		if (!is_dir($dirname) && !$success = @mkdir($dirname, 0777, TRUE)) {
 			throw new Application\BadRequestException;
@@ -226,9 +240,10 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 
 		if ($image instanceof Utils\Image) {
 			// Process image resizing etc.
-			if($width || $height){
+			if ($width || $height) {
 				$image->resize($width, $height, $algorithm);
 			}
+
 			// Save into new place
 			$success = $image->save($destination, 90);
 
@@ -238,13 +253,13 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 
 			$image->send();
 
-		} else if ((string) $image && is_file((string) $image)) {
+		} elseif ((string) $image && is_file((string) $image)) {
 			try {
 				Utils\FileSystem::copy((string) $image, $destination);
 
 				(new Images\Application\ImageResponse($destination))->send($this->httpRequest, $this->httpResponse);
 
-			} catch (\Exception $e) {
+			} catch (\Exception $ex) {
 				throw new Application\BadRequestException;
 			}
 

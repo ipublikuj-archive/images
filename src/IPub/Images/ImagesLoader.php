@@ -2,14 +2,14 @@
 /**
  * ImagesLoader.php
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	common
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     common
+ * @since          1.0.0
  *
- * @date		09.02.15
+ * @date           09.02.15
  */
 
 namespace IPub\Images;
@@ -23,12 +23,20 @@ use IPub\Images\Exceptions;
 use IPub\Images\Storage;
 use IPub\Images\Templating;
 
-class ImagesLoader extends Nette\Object
+/**
+ * Images loader
+ *
+ * @package        iPublikuj:Images!
+ * @subpackage     common
+ *
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ */
+final class ImagesLoader extends Nette\Object
 {
 	/**
 	 * @var Storage\IStorage[]
 	 */
-	protected $imageStorage = [];
+	private $imagesStorage = [];
 
 	/**
 	 * @param $arguments
@@ -39,39 +47,39 @@ class ImagesLoader extends Nette\Object
 	 */
 	public function request($arguments)
 	{
-		if (!isset($arguments["storage"]) || $arguments["storage"] === NULL) {
-			throw new Exceptions\InvalidArgumentException("Please provide image storage name.");
+		if (!isset($arguments['storage']) || $arguments['storage'] === NULL) {
+			throw new Exceptions\InvalidArgumentException('Please provide image storage name.');
 		}
 
-		if (!isset($arguments["filename"]) || $arguments["filename"] === NULL) {
-			throw new Exceptions\InvalidArgumentException("Please provide filename.");
+		if (!isset($arguments['filename']) || $arguments['filename'] === NULL) {
+			throw new Exceptions\InvalidArgumentException('Please provide filename.');
 		}
 
-		$storage = $arguments["storage"];
-		unset($arguments["storage"]);
+		$storage = $arguments['storage'];
+		unset($arguments['storage']);
 
-		$namespace = $arguments["namespace"];
-		unset($arguments["namespace"]);
+		$namespace = $arguments['namespace'];
+		unset($arguments['namespace']);
 
-		$filename = $arguments["filename"];
-		unset($arguments["filename"]);
+		$filename = $arguments['filename'];
+		unset($arguments['filename']);
 
-		$size = $arguments["size"];
-		unset($arguments["size"]);
+		$size = $arguments['size'];
+		unset($arguments['size']);
 
-		$algorithm = $arguments["algorithm"];
-		unset($arguments["algorithm"]);
+		$algorithm = $arguments['algorithm'];
+		unset($arguments['algorithm']);
 
 		if (empty($filename)) {
-			return "#";
+			return '#';
 		}
 
 		// Parse size
 		if (empty($size) || $size === NULL) {
 			$size = 'original';
 
-		} else if (strpos($size, 'x') !== FALSE) {
-			list($width, $height) = explode("x", $size);
+		} elseif (strpos($size, 'x') !== FALSE) {
+			list($width, $height) = explode('x', $size);
 
 			if ((int) $height > 0) {
 				$size = (int) $width . 'x' . (int) $height;
@@ -88,31 +96,30 @@ class ImagesLoader extends Nette\Object
 		if (empty($algorithm) || $algorithm === NULL) {
 			$algorithm = NULL;
 
-		} else if ($algorithm == NULL) {
+		} elseif ($algorithm === NULL) {
 			$algorithm = Utils\Image::FIT;
 
-		} else if (!is_int($algorithm) && !is_array($algorithm)) {
-			switch (strtolower($algorithm))
-			{
-				case "fit":
+		} elseif (!is_int($algorithm) && !is_array($algorithm)) {
+			switch (strtolower($algorithm)) {
+				case 'fit':
 					$algorithm = Utils\Image::FIT;
 					break;
 
-				case "fill":
+				case 'fill':
 					$algorithm = Utils\Image::FILL;
 					break;
 
-				case "exact":
+				case 'exact':
 					$algorithm = Utils\Image::EXACT;
 					break;
 
-				case "shrink_only":
-				case "shrinkonly":
-				case "shrink-only":
+				case 'shrink_only':
+				case 'shrinkonly':
+				case 'shrink-only':
 					$algorithm = Utils\Image::SHRINK_ONLY;
 					break;
 
-				case "stretch":
+				case 'stretch':
 					$algorithm = Utils\Image::STRETCH;
 					break;
 
@@ -124,7 +131,10 @@ class ImagesLoader extends Nette\Object
 			$algorithm = NULL;
 		}
 
-		return $this->getStorage($storage)->setNamespace($namespace)->request($filename, $size, $algorithm);
+		$storage = $this->getStorage($storage);
+		$storage->setNamespace($namespace);
+
+		return $storage->request($filename, $size, $algorithm);
 	}
 
 	/**
@@ -136,11 +146,11 @@ class ImagesLoader extends Nette\Object
 	 */
 	public function getStorage($storage)
 	{
-		if (isset($this->imageStorage[$storage])) {
-			return $this->imageStorage[$storage];
+		if (isset($this->imagesStorage[$storage])) {
+			return $this->imagesStorage[$storage];
 		}
 
-		throw new Exceptions\InvalidArgumentException("Storage '$storage' is not registered.");
+		throw new Exceptions\InvalidArgumentException('Storage "'. $storage .'" is not registered.');
 	}
 
 	/**
@@ -150,7 +160,7 @@ class ImagesLoader extends Nette\Object
 	 */
 	public function registerStorage(Storage\IStorage $storage)
 	{
-		$this->imageStorage[(string) $storage] = $storage;
+		$this->imagesStorage[(string) $storage] = $storage;
 
 		return $this;
 	}

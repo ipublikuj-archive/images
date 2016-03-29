@@ -52,7 +52,7 @@ class ImageUploadControl extends Forms\Controls\BaseControl
 		parent::__construct($label);
 
 		$this->monitor('Nette\Application\UI\Presenter');
-		$this->control->type = 'file';
+		$this->getControl()->type = 'file';
 	}
 
 	/**
@@ -86,7 +86,7 @@ class ImageUploadControl extends Forms\Controls\BaseControl
 	 */
 	public function allowMultiple()
 	{
-		$this->control->multiple = TRUE;
+		$this->getControl()->multiple = TRUE;
 
 		return $this;
 	}
@@ -171,11 +171,11 @@ class ImageUploadControl extends Forms\Controls\BaseControl
 	/**
 	 * Image validator: is file image?
 	 *
-	 * @param UploadControl $control
+	 * @param ImageUploadControl $control
 	 *
 	 * @return bool
 	 */
-	public static function validateImage(UploadControl $control)
+	public static function validateImage(ImageUploadControl $control)
 	{
 		foreach ((array) $control->value as $file) {
 			if (!$file instanceof Http\FileUpload || !$file->isImage()) {

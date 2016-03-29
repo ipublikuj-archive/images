@@ -2,14 +2,14 @@
 /**
  * FileStorage.php
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	Storages
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     Storage
+ * @since          1.0.0
  *
- * @date		09.02.15
+ * @date           09.02.15
  */
 
 namespace IPub\Images\Storage;
@@ -26,6 +26,14 @@ use IPub\Images\Exceptions;
 use IPub\Images\Image;
 use IPub\Images\Validators;
 
+/**
+ * Basic file storage for images
+ *
+ * @package        iPublikuj:Images!
+ * @subpackage     Storage
+ *
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ */
 abstract class FileStorage extends Nette\Object implements IStorage
 {
 	/**
@@ -54,11 +62,6 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	private $validator;
 
 	/**
-	 * @var Files\Browser
-	 */
-	private $browser;
-
-	/**
 	 * @var Application\IPresenter
 	 */
 	private $presenter;
@@ -69,22 +72,26 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	 * @param Validators\Validator $validator
 	 * @param Application\Application $application
 	 */
-	public function __construct($storageDir, $webDir, Validators\Validator $validator, Application\Application $application)
-	{
+	public function __construct(
+		$storageDir,
+		$webDir,
+		Validators\Validator $validator,
+		Application\Application $application
+	) {
 		if (!is_dir($storageDir)) {
 			Utils\FileSystem::createDir($storageDir);
 		}
-		$this->storageDir = $storageDir;
+
+		$this->setStorageDir($storageDir);
 
 		if (!is_dir($webDir)) {
 			Utils\FileSystem::createDir($webDir);
 		}
-		$this->webDir = $webDir;
+
+		$this->setWebDir($webDir);
 
 		$this->application = $application;
 		$this->validator = $validator;
-
-		$this->browser = new Files\Browser($this);
 	}
 
 	/**
@@ -98,19 +105,15 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	/**
 	 * @param string $dir
 	 *
-	 * @return $this
-	 *
 	 * @throw Exceptions\DirectoryNotFoundException
 	 */
 	public function setStorageDir($dir)
 	{
 		if (!is_dir($dir)) {
-			throw new Exceptions\DirectoryNotFoundException("Directory '$dir' does not exist.");
+			throw new Exceptions\DirectoryNotFoundException('Directory "'. $dir .'" does not exist.');
 		}
 
 		$this->storageDir = $dir;
-
-		return $this;
 	}
 
 	/**
@@ -124,19 +127,15 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	/**
 	 * @param string $dir
 	 *
-	 * @return $this
-	 *
 	 * @throw Exceptions\DirectoryNotFoundException
 	 */
 	public function setWebDir($dir)
 	{
 		if (!is_dir($dir)) {
-			throw new Exceptions\DirectoryNotFoundException("Directory '$dir' does not exist.");
+			throw new Exceptions\DirectoryNotFoundException('Directory "'. $dir .'" does not exist.');
 		}
 
 		$this->webDir = $dir;
-
-		return $this;
 	}
 
 	/**
@@ -148,9 +147,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	}
 
 	/**
-	 * @param string $namespace
-	 *
-	 * @return $this
+	 * @inheritdoc
 	 */
 	public function setNamespace($namespace = NULL)
 	{
@@ -160,12 +157,10 @@ abstract class FileStorage extends Nette\Object implements IStorage
 		} else {
 			$this->namespace = trim(trim($namespace), DIRECTORY_SEPARATOR);
 		}
-
-		return $this;
 	}
 
 	/**
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getNamespace()
 	{
@@ -173,9 +168,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	}
 
 	/**
-	 * @param string $namespace
-	 *
-	 * @return bool
+	 * @inheritdoc
 	 */
 	public function namespaceExists($namespace)
 	{
@@ -206,9 +199,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	}
 
 	/**
-	 * @param string $filename
-	 *
-	 * @return Image\Image
+	 * @inheritdoc
 	 */
 	public function get($filename)
 	{
@@ -220,12 +211,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	}
 
 	/**
-	 * @param Http\FileUpload $file
-	 * @param string $namespace
-	 *
-	 * @return Image\Image
-	 *
-	 * @throws Exceptions\InvalidArgumentException
+	 * @inheritdoc
 	 */
 	public function upload(Http\FileUpload $file, $namespace = NULL)
 	{
@@ -234,7 +220,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 		}
 
 		// Create filename with path
-		$absoluteName = $this->generateUniqueFilename($file->getSanitizedName(), $namespace?:$this->getNamespace());
+		$absoluteName = $this->generateUniqueFilename($file->getSanitizedName(), $namespace ?: $this->getNamespace());
 
 		$file->move($absoluteName);
 
@@ -244,16 +230,12 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	}
 
 	/**
-	 * @param string $content
-	 * @param string $filename
-	 * @param string $namespace
-	 *
-	 * @return Image\Image
+	 * @inheritdoc
 	 */
 	public function save($content, $filename, $namespace = NULL)
 	{
 		// Create filename with path
-		$absoluteName = $this->generateUniqueFilename($filename, $namespace?:$this->getNamespace());
+		$absoluteName = $this->generateUniqueFilename($filename, $namespace ?: $this->getNamespace());
 
 		file_put_contents($absoluteName, $content);
 
@@ -263,11 +245,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	}
 
 	/**
-	 * @param string $filename
-	 *
-	 * @return $this
-	 *
-	 * @throws Nette\IOException
+	 * @inheritdoc
 	 */
 	public function delete($filename)
 	{
@@ -295,12 +273,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	}
 
 	/**
-	 * @param string $filename
-	 * @param string $size
-	 * @param array|string|null $algorithm
-	 * @param bool $strictMode
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function request($filename, $size, $algorithm = NULL, $strictMode = FALSE)
 	{
@@ -311,7 +284,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 		return $this->getPresenter()->link(':IPub:Images:', [
 			'storage'   => (string) $this,
 			'namespace' => $this->getNamespace(),
-			'filename'  => basename($file->getBasename(), '.'. $file->getExtension()),
+			'filename'  => basename($file->getBasename(), '.' . $file->getExtension()),
 			'extension' => $file->getExtension(),
 			'size'      => $size,
 			'algorithm' => $algorithm
@@ -364,19 +337,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	}
 
 	/**
-	 * @param string $dir
-	 *
-	 * @return void
-	 *
-	 * @throws Nette\IOException
-	 */
-	private static function mkdir($dir)
-	{
-		Utils\FileSystem::createDir($dir);
-	}
-
-	/**
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function __toString()
 	{

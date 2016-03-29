@@ -2,20 +2,28 @@
 /**
  * Size.php
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	common
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     Image
+ * @since          1.0.0
  *
- * @date		05.04.14
+ * @date           05.04.14
  */
 
 namespace IPub\Images\Image;
 
 use Nette;
 
+/**
+ * Saved image size entity
+ *
+ * @package        iPublikuj:Images!
+ * @subpackage     Image
+ *
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ */
 class Size extends Nette\Object
 {
 	/**
@@ -34,8 +42,8 @@ class Size extends Nette\Object
 	 */
 	public function __construct($width, $height)
 	{
-		$this->width	= $width;
-		$this->height	= $height;
+		$this->width = $width;
+		$this->height = $height;
 	}
 
 	/**

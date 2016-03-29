@@ -2,14 +2,14 @@
 /**
  * Helpers.php
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	Templating
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     Templating
+ * @since          1.0.0
  *
- * @date		05.04.14
+ * @date           05.04.14
  */
 
 namespace IPub\Images\Templating;
@@ -23,16 +23,20 @@ use IPub\Images;
 use IPub\Images\Exceptions;
 use IPub\Images\Image;
 
-if (!function_exists('id') && PHP_VERSION_ID < 50400) { # workaround for php < 5.4
-	function id($obj) { return $obj; }
-}
-
-class Helpers extends Nette\Object
+/**
+ * Templates helpers
+ *
+ * @package        iPublikuj:Images!
+ * @subpackage     Templating
+ *
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ */
+final class Helpers extends Nette\Object
 {
 	/**
 	 * @var Images\ImagesLoader
 	 */
-	protected $imagesLoader;
+	private $imagesLoader;
 
 	/**
 	 * @param Images\ImagesLoader $imagesLoader
@@ -43,31 +47,17 @@ class Helpers extends Nette\Object
 	}
 
 	/**
-	 * @deprecated
-	 *
-	 * @param $method
-	 *
-	 * @return array
-	 */
-	public function loader($method)
-	{
-		if (method_exists($this, $method)) {
-			return callback($this, $method);
-		}
-	}
-
-	/**
 	 * Register template filters
 	 *
 	 * @param Engine $engine
 	 */
 	public function register(Engine $engine)
 	{
-		$engine->addFilter('isSquare', array($this, 'isSquare'));
-		$engine->addFilter('isHigher', array($this, 'isHigher'));
-		$engine->addFilter('isWider', array($this, 'isWider'));
-		$engine->addFilter('fromString', array($this, 'fromString'));
-		$engine->addFilter('getImagesLoader', array($this, 'getImagesLoader'));
+		$engine->addFilter('isSquare', [$this, 'isSquare']);
+		$engine->addFilter('isHigher', [$this, 'isHigher']);
+		$engine->addFilter('isWider', [$this, 'isWider']);
+		$engine->addFilter('fromString', [$this, 'fromString']);
+		$engine->addFilter('getImagesLoader', [$this, 'getImagesLoader']);
 	}
 
 	/**
@@ -77,7 +67,7 @@ class Helpers extends Nette\Object
 	 */
 	public function isSquare($file)
 	{
-		$size = $this->fromString($file);
+		$size = $this->fromString($file)->getSize();
 
 		return $size->getWidth() === $size->getHeight();
 	}
@@ -89,7 +79,7 @@ class Helpers extends Nette\Object
 	 */
 	public function isHigher($file)
 	{
-		$size = $this->fromString($file);
+		$size = $this->fromString($file)->getSize();
 
 		return $size->getWidth() < $size->getHeight();
 	}
@@ -101,7 +91,7 @@ class Helpers extends Nette\Object
 	 */
 	public function isWider($file)
 	{
-		$size = $this->fromString($file);
+		$size = $this->fromString($file)->getSize();
 
 		return $size->getWidth() > $size->getHeight();
 	}
@@ -109,7 +99,7 @@ class Helpers extends Nette\Object
 	/**
 	 * @param string $file
 	 *
-	 * @return Images\Size
+	 * @return Image\Image
 	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 * @throws Exceptions\InvalidStateException
@@ -124,22 +114,18 @@ class Helpers extends Nette\Object
 				$storage->setNamespace(trim($matches['namespace']));
 			}
 
-			$image = $storage->get($matches['name'] .'.'. $matches['extension']);
+			$image = $storage->get($matches['name'] . '.' . $matches['extension']);
 
 			if ($image instanceof Image\Image) {
-				if (PHP_VERSION_ID < 50400) {
-					return id($image)->getSize();
-				}
-
-				return $image->getSize();
+				return $image;
 
 			} else {
-				throw new Exceptions\FileNotFoundException("Image: '$file' in storage: '$storage' was not found.");
+				throw new Exceptions\FileNotFoundException('Image: "'. $file .'" in storage: "'. $storage .'" was not found.');
 			}
 
-		} else {
-			throw new Exceptions\InvalidStateException("Images storage for file: '$file' was not found.");
 		}
+
+		throw new Exceptions\InvalidStateException('Images storage for file: "'. $file .'" was not found.');
 	}
 
 	/**

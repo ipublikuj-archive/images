@@ -2,22 +2,31 @@
 /**
  * TImages.php
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	common
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     common
+ * @since          1.0.0
  *
- * @date		05.04.14
+ * @date           05.04.14
  */
 
 namespace IPub\Images;
 
 use Nette;
 
+use IPub;
 use IPub\Images\Templating;
 
+/**
+ * Extension trait
+ *
+ * @package        iPublikuj:Images!
+ * @subpackage     common
+ *
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ */
 trait TImages
 {
 	/**
@@ -32,13 +41,13 @@ trait TImages
 
 	/**
 	 * @param ImagesLoader $imagesLoader
-	 * @param Templating\Helpers $imgHelpers
+	 * @param Templating\Helpers $imagesHelpers
 	 */
 	public function injectImages(
 		ImagesLoader $imagesLoader,
-		Templating\Helpers $imgHelpers
+		Templating\Helpers $imagesHelpers
 	) {
 		$this->imagesLoader = $imagesLoader;
-		$this->imgHelpers = $imgHelpers;
+		$this->imgHelpers = $imagesHelpers;
 	}
 }

@@ -12,18 +12,8 @@ Second important think is, all storage services can store files outside of docum
 
 The best way to install ipub/flickr is using  [Composer](http://getcomposer.org/):
 
-```json
-{
-	"require": {
-		"ipub/images": "dev-master"
-	}
-}
-```
-
-or
-
 ```sh
-$ composer require ipub/images:@dev
+$ composer require ipub/images
 ```
 
 After that you have to register extension in config.neon.
@@ -83,7 +73,7 @@ class YourFileStorage extends \IPub\Images\Storage\FileStorage
 }
 ```
 
-And now you can register this new storage into services:
+And now you can register this new storage as services:
 
 ```neon
 services
@@ -133,3 +123,8 @@ Parameters of this macro are:
 ### Resizing algorithm
 
 For resizing (third argument) you can use these keywords - `fit`, `fill`, `exact`, `stretch`, `shrink_only`. For details see comments above [these constants](http://api.nette.org/2.0/source-common.Image.php.html#105)
+
+## Want more?
+
+If you need some more information how to operate with images storage, you can navigate to [next page](https://github.com/iPublikuj/images/blob/master/docs/en/fileStorage.md).
+In case you need information how to handle images paths in your presenters, components, etc., checkout page about [generator](https://github.com/iPublikuj/images/blob/master/docs/en/generation.md)

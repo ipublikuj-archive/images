@@ -2,14 +2,14 @@
 /**
  * ImageExtension.php
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	DI
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     DI
+ * @since          1.0.0
  *
- * @date		05.04.14
+ * @date           05.04.14
  */
 
 namespace IPub\Images\DI;
@@ -18,17 +18,32 @@ use Nette;
 use Nette\DI;
 use Nette\PhpGenerator as Code;
 
+use IPub;
+use IPub\Images;
+use IPub\Images\Application;
+use IPub\Images\Storage;
+
+use IPub\IPubModule;
+
+/**
+ * Images extension container
+ *
+ * @package        iPublikuj:Images!
+ * @subpackage     DI
+ *
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ */
 class ImagesExtension extends DI\CompilerExtension
 {
 	/**
 	 * @var array
 	 */
 	private $defaults = [
-		'routes' => [],
+		'routes'                => [],
 		'prependRoutesToRouter' => TRUE,
-		'storage' => [],
-		'rules' => [],
-		'wwwDir' => NULL,
+		'storage'               => [],
+		'rules'                 => [],
+		'wwwDir'                => NULL,
 	];
 
 	public function loadConfiguration()
@@ -42,7 +57,7 @@ class ImagesExtension extends DI\CompilerExtension
 
 		// Images presenter
 		$builder->addDefinition($this->prefix('presenter'))
-			->setClass('IPub\IPubModule\ImagesPresenter', [
+			->setClass(IPubModule\ImagesPresenter::CLASS_NAME, [
 				$config['wwwDir'],
 			]);
 
@@ -52,10 +67,10 @@ class ImagesExtension extends DI\CompilerExtension
 
 		foreach ($config['rules'] as $rule) {
 			$validator->addSetup('$service->addRule(?, ?, ?)', [
-					$rule['width'],
-					$rule['height'],
-					isset($rule['algorithm']) ? $rule['algorithm'] : NULL,
-				]);
+				$rule['width'],
+				$rule['height'],
+				isset($rule['algorithm']) ? $rule['algorithm'] : NULL,
+			]);
 		}
 
 		if ($config['routes']) {
@@ -72,7 +87,7 @@ class ImagesExtension extends DI\CompilerExtension
 				}
 
 				$builder->addDefinition($this->prefix('route.' . $i))
-					->setClass('IPub\Images\Application\Route', [$mask, $metadata])
+					->setClass(Application\Route::CLASS_NAME, [$mask, $metadata])
 					->setAutowired(FALSE)
 					->setInject(FALSE);
 
@@ -95,7 +110,7 @@ class ImagesExtension extends DI\CompilerExtension
 		// Update presenters mapping
 		$builder->getDefinition('nette.presenterFactory')
 			->addSetup('if (method_exists($service, ?)) { $service->setMapping([? => ?]); } '
-				.'elseif (property_exists($service, ?)) { $service->mapping[?] = ?; }',
+				. 'elseif (property_exists($service, ?)) { $service->mapping[?] = ?; }',
 				['setMapping', 'IPub', 'IPub\IPubModule\*\*Presenter', 'mapping', 'IPub', 'IPub\IPubModule\*\*Presenter']
 			);
 
@@ -108,6 +123,8 @@ class ImagesExtension extends DI\CompilerExtension
 
 	public function beforeCompile()
 	{
+		parent::beforeCompile();
+
 		$config = $this->getConfig($this->defaults);
 		$builder = $this->getContainerBuilder();
 
@@ -123,22 +140,21 @@ class ImagesExtension extends DI\CompilerExtension
 				$router = $builder->getDefinition('router');
 			}
 
-			$router->addSetup('IPub\Images\Helpers::prependRoute', [
-				'@self',
-				$this->prefix('@router'),
-			]);
+			foreach ($builder->findByType(Application\Route::CLASS_NAME) as $service) {
+				$router->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', [$service]);
+			}
 		}
-		
+
 		// Install extension latte macros
 		$latteFactory = $builder->getDefinition($builder->getByType('\Nette\Bridges\ApplicationLatte\ILatteFactory') ?: 'nette.latteFactory');
 
 		$latteFactory
-			->addSetup('IPub\Images\Latte\Macros::install(?->getCompiler())', array('@self'))
-			->addSetup('addFilter', array('isSquare', array($this->prefix('@helpers'), 'isSquare')))
-			->addSetup('addFilter', array('isHigher', array($this->prefix('@helpers'), 'isHigher')))
-			->addSetup('addFilter', array('isWider', array($this->prefix('@helpers'), 'isWider')))
-			->addSetup('addFilter', array('fromString', array($this->prefix('@helpers'), 'fromString')))
-			->addSetup('addFilter', array('getImagesLoaderService', array($this->prefix('@helpers'), 'getImagesLoaderService')));
+			->addSetup('IPub\Images\Latte\Macros::install(?->getCompiler())', ['@self'])
+			->addSetup('addFilter', ['isSquare', [$this->prefix('@helpers'), 'isSquare']])
+			->addSetup('addFilter', ['isHigher', [$this->prefix('@helpers'), 'isHigher']])
+			->addSetup('addFilter', ['isWider', [$this->prefix('@helpers'), 'isWider']])
+			->addSetup('addFilter', ['fromString', [$this->prefix('@helpers'), 'fromString']])
+			->addSetup('addFilter', ['getImagesLoaderService', [$this->prefix('@helpers'), 'getImagesLoaderService']]);
 	}
 
 	/**

@@ -2,14 +2,14 @@
 /**
  * Macros.php
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	Latte
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     Latte
+ * @since          1.0.0
  *
- * @date		05.04.14
+ * @date           05.04.14
  */
 
 namespace IPub\Images\Latte;
@@ -24,10 +24,22 @@ use Latte\Macros\MacroSet;
 
 use IPub;
 
-class Macros extends MacroSet
+/**
+ * Latte macros
+ *
+ * @package        iPublikuj:Images!
+ * @subpackage     Latte
+ *
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ */
+final class Macros extends MacroSet
 {
 	/**
 	 * Register latte macros
+	 * 
+	 * @param Compiler $compiler
+	 *
+	 * @return static
 	 */
 	public static function install(Compiler $compiler)
 	{
@@ -38,8 +50,8 @@ class Macros extends MacroSet
 		 */
 		$me->addMacro('src', function (MacroNode $node, PhpWriter $writer) use ($me) {
 			return $me->macroSrc($node, $writer);
-		}, NULL, function(MacroNode $node, PhpWriter $writer) use ($me) {
-			return ' ?> '. ($node->htmlNode->name === 'a' ? 'href' : 'src') .'="<?php ' . $me->macroSrc($node, $writer) . ' ?>"<?php ';
+		}, NULL, function (MacroNode $node, PhpWriter $writer) use ($me) {
+			return ' ?> ' . ($node->htmlNode->name === 'a' ? 'href' : 'src') . '="<?php ' . $me->macroSrc($node, $writer) . ' ?>"<?php ';
 		});
 
 		return $me;
@@ -50,8 +62,6 @@ class Macros extends MacroSet
 	 * @param PhpWriter $writer
 	 *
 	 * @return string
-	 *
-	 * @throws Nette\Latte\CompileException
 	 */
 	public function macroSrc(MacroNode $node, PhpWriter $writer)
 	{
@@ -70,7 +80,7 @@ class Macros extends MacroSet
 		$arguments = [
 			'storage'   => isset($matches['storage']) ? $matches['storage'] : NULL,
 			'namespace' => isset($matches['namespace']) && trim(trim($matches['namespace']), '/') ? $matches['namespace'] : NULL,
-			'filename'  => isset($matches['name']) && isset($matches['extension']) ? $matches['name'] .'.'. $matches['extension'] : NULL,
+			'filename'  => isset($matches['name']) && isset($matches['extension']) ? $matches['name'] . '.' . $matches['extension'] : NULL,
 			'size'      => (isset($macro[1]) && !empty($macro[1])) ? $macro[1] : NULL,
 			'algorithm' => (isset($macro[2]) && !empty($macro[2])) ? $macro[2] : NULL,
 		];
