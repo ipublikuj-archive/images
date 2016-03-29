@@ -156,7 +156,7 @@ class ImagesExtension extends DI\CompilerExtension
 		if ($configuration['prependRoutesToRouter']) {
 			$router = $builder->getByType('Nette\Application\IRouter');
 
-			if ($router) {
+			if ($router !== NULL) {
 				if (!$router instanceof DI\ServiceDefinition) {
 					$router = $builder->getDefinition($router);
 				}

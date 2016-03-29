@@ -203,11 +203,11 @@ class ImageUploadControl extends Forms\Controls\BaseControl
 	public static function register($method = 'addImageUpload')
 	{
 		// Check for multiple registration
-		if (static::$registered) {
+		if (self::$registered) {
 			throw new Nette\InvalidStateException('Image upload control already registered.');
 		}
 
-		static::$registered = TRUE;
+		self::$registered = TRUE;
 
 		$class = function_exists('get_called_class') ? get_called_class() : __CLASS__;
 

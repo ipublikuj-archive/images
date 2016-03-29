@@ -62,7 +62,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	private $validator;
 
 	/**
-	 * @var Application\IPresenter
+	 * @var Application\UI\Presenter
 	 */
 	private $presenter;
 
@@ -151,7 +151,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	 */
 	public function setNamespace($namespace = NULL)
 	{
-		if (!$namespace) {
+		if ($namespace === NULL) {
 			$this->namespace = NULL;
 
 		} else {
@@ -313,7 +313,7 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	}
 
 	/**
-	 * @return Application\IPresenter
+	 * @return Application\UI\Presenter
 	 */
 	private function getPresenter()
 	{
@@ -325,11 +325,11 @@ abstract class FileStorage extends Nette\Object implements IStorage
 	}
 
 	/**
-	 * @param Application\IPresenter $presenter
+	 * @param Application\UI\Presenter $presenter
 	 *
 	 * @return $this
 	 */
-	public function setPresenter(Application\IPresenter $presenter)
+	public function setPresenter(Application\UI\Presenter $presenter)
 	{
 		$this->presenter = $presenter;
 
