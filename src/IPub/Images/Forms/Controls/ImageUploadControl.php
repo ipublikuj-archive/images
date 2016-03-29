@@ -2,14 +2,14 @@
 /**
  * ImageUploadControl.php
  *
- * @copyright	More in license.md
- * @license		http://www.ipublikuj.eu
- * @author		Adam Kadlec http://www.ipublikuj.eu
- * @package		iPublikuj:Images!
- * @subpackage	Controls
- * @since		5.0
+ * @copyright      More in license.md
+ * @license        http://www.ipublikuj.eu
+ * @author         Adam Kadlec http://www.ipublikuj.eu
+ * @package        iPublikuj:Images!
+ * @subpackage     Controls
+ * @since          1.0.0
  *
- * @date		06.04.14
+ * @date           06.04.14
  */
 
 namespace IPub\Images\Forms\Controls;
@@ -20,12 +20,23 @@ use Nette\Http;
 use Nette\Utils;
 
 use IPub;
+use IPub\Images;
 use IPub\Images\Exceptions;
 
+/**
+ * Form upload control
+ *
+ * @package        iPublikuj:Images!
+ * @subpackage     Controls
+ *
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ *
+ * @method onUpload(ImageUploadControl $control, Http\FileUpload[] $files)
+ */
 class ImageUploadControl extends Forms\Controls\BaseControl
 {
 	/**
-	 * @var array of function (UploadControl $control, Http\FileUpload[] $files)
+	 * @var \Closure[]
 	 */
 	public $onUpload = [];
 
@@ -73,8 +84,8 @@ class ImageUploadControl extends Forms\Controls\BaseControl
 
 		} else if ($parent instanceof Nette\Application\UI\Presenter) {
 			if (!$this->httpRequest) {
-				$this->httpRequest	= $parent->getContext()->httpRequest;
-				$this->httpResponse	= $parent->getContext()->httpResponse;
+				$this->httpRequest = $parent->getContext()->httpRequest;
+				$this->httpResponse = $parent->getContext()->httpResponse;
 			}
 		}
 
@@ -110,7 +121,7 @@ class ImageUploadControl extends Forms\Controls\BaseControl
 				$this->value = [new Http\FileUpload($value)];
 			}
 
-		} else if ($value instanceof Http\FileUpload) {
+		} elseif ($value instanceof Http\FileUpload) {
 			$this->value = [$value];
 
 		} else {
@@ -198,13 +209,13 @@ class ImageUploadControl extends Forms\Controls\BaseControl
 
 		static::$registered = TRUE;
 
-		$class = function_exists('get_called_class')?get_called_class():__CLASS__;
-		Forms\Container::extensionMethod(
-			$method, function (Forms\Container $form, $name, $label = NULL) use ($class) {
-				$component = new $class($label);
-				$form->addComponent($component, $name);
-				return $component;
-			}
-		);
+		$class = function_exists('get_called_class') ? get_called_class() : __CLASS__;
+
+		Forms\Container::extensionMethod($method, function (Forms\Container $form, $name, $label = NULL) use ($class) {
+			$component = new $class($label);
+			$form->addComponent($component, $name);
+
+			return $component;
+		});
 	}
 }

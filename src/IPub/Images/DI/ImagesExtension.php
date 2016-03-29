@@ -16,6 +16,7 @@ namespace IPub\Images\DI;
 
 use Nette;
 use Nette\DI;
+use Nette\Utils;
 use Nette\PhpGenerator as Code;
 
 use IPub;
@@ -37,6 +38,9 @@ use IPub\IPubModule;
  */
 class ImagesExtension extends DI\CompilerExtension
 {
+	// Define tag string for router services
+	const TAG_MODULE_ROUTES = 'ipub.images.routes';
+
 	/**
 	 * @var array
 	 */
@@ -50,8 +54,15 @@ class ImagesExtension extends DI\CompilerExtension
 
 	public function loadConfiguration()
 	{
-		$config = $this->getConfig($this->defaults);
+		// Get container builder
 		$builder = $this->getContainerBuilder();
+		// Get extension configuration
+		$configuration = $this->getConfig($this->defaults);
+
+		// Check for valid values
+		Utils\Validators::assert($configuration['wwwDir'], 'string', 'Web public dir');
+		Utils\Validators::assert($configuration['storage'], 'array', 'Images storage');
+		Utils\Validators::assert($configuration['routes'], 'array', 'Images routes');
 
 		// Extension loader
 		$loader = $builder->addDefinition($this->prefix('loader'))
@@ -60,14 +71,18 @@ class ImagesExtension extends DI\CompilerExtension
 		// Images presenter
 		$builder->addDefinition($this->prefix('presenter'))
 			->setClass(IPubModule\ImagesPresenter::CLASS_NAME, [
-				$config['wwwDir'],
+				$configuration['wwwDir'],
 			]);
 
 		// Create default storage validator
 		$validator = $builder->addDefinition($this->prefix('validator.default'))
 			->setClass(Validators\Validator::CLASS_NAME);
 
-		foreach ($config['rules'] as $rule) {
+		foreach ($configuration['rules'] as $rule) {
+			// Check for valid rules values
+			Utils\Validators::assert($rule['width'], 'int', 'Rule width');
+			Utils\Validators::assert($rule['height'], 'int', 'Rule height');
+
 			$validator->addSetup('$service->addRule(?, ?, ?)', [
 				$rule['width'],
 				$rule['height'],
@@ -75,14 +90,15 @@ class ImagesExtension extends DI\CompilerExtension
 			]);
 		}
 
-		if ($config['routes']) {
+		if ($configuration['routes']) {
 			$router = $builder->addDefinition($this->prefix('router'))
 				->setClass('Nette\Application\Routers\RouteList')
 				->addTag($this->prefix('routeList'))
 				->setAutowired(FALSE);
 
 			$i = 0;
-			foreach ($config['routes'] as $mask => $metadata) {
+
+			foreach ($configuration['routes'] as $mask => $metadata) {
 				if (!is_array($metadata)) {
 					$mask = $metadata;
 					$metadata = [];
@@ -91,6 +107,7 @@ class ImagesExtension extends DI\CompilerExtension
 				$builder->addDefinition($this->prefix('route.' . $i))
 					->setClass(Application\Route::CLASS_NAME, [$mask, $metadata])
 					->setAutowired(FALSE)
+					->addTag(self::TAG_MODULE_ROUTES)
 					->setInject(FALSE);
 
 				// Add route to router
@@ -102,11 +119,12 @@ class ImagesExtension extends DI\CompilerExtension
 			}
 		}
 
-		foreach ($config['storage'] as $name => $provider) {
+		foreach ($configuration['storage'] as $name => $provider) {
 			$this->compiler->parseServices($builder, [
-				'services' => [$this->prefix('storage' . $name) => $provider],
+				'services' => [$this->prefix('storage.' . $name) => $provider],
 			]);
-			$loader->addSetup('registerStorage', [$this->prefix('@storage' . $name)]);
+
+			$loader->addSetup('registerStorage', [$this->prefix('@storage.' . $name)]);
 		}
 
 		// Update presenters mapping
@@ -130,10 +148,12 @@ class ImagesExtension extends DI\CompilerExtension
 	{
 		parent::beforeCompile();
 
-		$config = $this->getConfig($this->defaults);
+		// Get container builder
 		$builder = $this->getContainerBuilder();
+		// Get extension configuration
+		$configuration = $this->getConfig($this->defaults);
 
-		if ($config['prependRoutesToRouter']) {
+		if ($configuration['prependRoutesToRouter']) {
 			$router = $builder->getByType('Nette\Application\IRouter');
 
 			if ($router) {
@@ -145,8 +165,8 @@ class ImagesExtension extends DI\CompilerExtension
 				$router = $builder->getDefinition('router');
 			}
 
-			foreach ($builder->findByType(Application\Route::CLASS_NAME) as $service) {
-				$router->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', [$service]);
+			foreach (array_keys($builder->findByTag(self::TAG_MODULE_ROUTES)) as $service) {
+				$router->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', ['@'. $service]);
 			}
 		}
 
@@ -174,12 +194,12 @@ class ImagesExtension extends DI\CompilerExtension
 	}
 
 	/**
-	 * @param Nette\Configurator $config
+	 * @param Nette\Configurator $configurator
 	 * @param string $extensionName
 	 */
-	public static function register(Nette\Configurator $config, $extensionName = 'images')
+	public static function register(Nette\Configurator $configurator, $extensionName = 'images')
 	{
-		$config->onCompile[] = function (Nette\Configurator $config, Nette\DI\Compiler $compiler) use ($extensionName) {
+		$configurator->onCompile[] = function (Nette\Configurator $configurator, Nette\DI\Compiler $compiler) use ($extensionName) {
 			$compiler->addExtension($extensionName, new ImagesExtension());
 		};
 	}

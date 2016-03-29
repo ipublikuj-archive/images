@@ -43,12 +43,12 @@ class Validator extends Nette\Object implements IValidator
 	 * @param  int $height
 	 * @param  int|string $algorithm
 	 */
-	public function addRule($width, $height, $algorithm)
+	public function addRule($width, $height, $algorithm = NULL)
 	{
 		$this->rules[] = [
 			'width'     => (int) $width,
 			'height'    => (int) $height,
-			'algorithm' => (string) $algorithm,
+			'algorithm' => $algorithm === NULL ? NULL : (string) $algorithm,
 		];
 	}
 
