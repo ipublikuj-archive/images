@@ -176,20 +176,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 		try {
 			$fileSystem = $this->mountManager->getFilesystem($storage);
 
-			$width = $height = 0;
-
-			$size = Utils\Strings::lower($size);
-
-			// Extract size
-			if (strpos($size, 'x') !== FALSE) {
-				list($width, $height) = explode('x', $size);
-
-			} elseif ($size !== 'original') {
-				$width = (int) $size;
-
-			} elseif ($size === 'original') {
-				$width = $height = NULL;
-			}
+			list($width, $height) = $this->parseSize($size);
 
 			// Extract algorithm
 			if ($algorithm === NULL) {
@@ -216,37 +203,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 
 				$mimeType = $fileSystem->getMimetype($file);
 
-				// Check if file is allowed image type
-				if (in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif'])) {
-					// ...& create image object
-					$image = Utils\Image::fromString($image);
-				}
-
-				if ($image instanceof Utils\Image) {
-					// Process image resizing etc.
-					if ($width || $height) {
-						$image->resize($width, $height, $algorithm);
-					}
-
-					// Save into new place
-					$success = $image->save($destination, 90);
-
-					if (!$success) {
-						throw new Application\BadRequestException;
-					}
-
-					$image->send();
-
-				} else {
-					try {
-						Utils\FileSystem::write($destination, $image);
-
-						(new Images\Application\ImageResponse($destination, ($mimeType ? $mimeType : NULL)))->send($this->httpRequest, $this->httpResponse);
-
-					} catch (\Exception $ex) {
-						throw new Application\BadRequestException;
-					}
-				}
+				$this->createImage($image, $mimeType, $width, $height, $algorithm);
 
 			} catch (Flysystem\FileNotFoundException $ex) {
 				throw new Application\BadRequestException;
@@ -255,5 +212,74 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 		} catch (\LogicException $ex) {
 			throw new Application\BadRequestException;
 		}
+	}
+
+	/**
+	 * @param string $imageContent
+	 * @param string $mimeType
+	 * @param int $width
+	 * @param int $height
+	 * @param int $algorithm
+	 *
+	 * @throws Application\BadRequestException
+	 */
+	private function createImage($imageContent, $mimeType, $width, $height, $algorithm)
+	{
+		$destination = $this->webDir . $this->httpRequest->getUrl()->getPath();
+
+		// Check if file is allowed image type
+		if (in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif'])) {
+			// ...& create image object
+			$image = Utils\Image::fromString($imageContent);
+
+			// Process image resizing etc.
+			if ($width || $height) {
+				$image->resize($width, $height, $algorithm);
+			}
+
+			// Save into new place
+			$success = $image->save($destination, 90);
+
+			if (!$success) {
+				throw new Application\BadRequestException;
+			}
+
+			$image->send();
+
+		} else {
+			try {
+				Utils\FileSystem::write($destination, $imageContent);
+
+				(new Images\Application\ImageResponse($destination, ($mimeType ? $mimeType : NULL)))->send($this->httpRequest, $this->httpResponse);
+
+			} catch (\Exception $ex) {
+				throw new Application\BadRequestException;
+			}
+		}
+	}
+
+	/**
+	 * @param string $size
+	 *
+	 * @return array
+	 */
+	private function parseSize($size)
+	{
+		$width = $height = 0;
+
+		$size = Utils\Strings::lower($size);
+
+		// Extract size
+		if (strpos($size, 'x') !== FALSE) {
+			list($width, $height) = explode('x', $size);
+
+		} elseif ($size !== 'original') {
+			$width = (int) $size;
+
+		} elseif ($size === 'original') {
+			$width = $height = NULL;
+		}
+
+		return [$width, $height];
 	}
 }
