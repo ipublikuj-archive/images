@@ -25,12 +25,24 @@ use Tester\Assert;
 use IPub;
 use IPub\Images;
 
+use League\Flysystem;
+
 require_once __DIR__ . '/TestCase.php';
 
 class PresenterTest extends TestCase
 {
 	public function testRendering()
 	{
+		/** @var Images\ImagesLoader $loader */
+		$loader = $this->container->getService('images.loader');
+		/** @var Flysystem\FilesystemInterface $storage */
+		$storage = $loader->getStorage('default');
+
+		$filePath = __DIR__ . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'ipublikuj-logo-large.png';
+
+		/** Upload image to storage */
+		$storage->write('ipublikuj-logo-large.png', file_get_contents($filePath));
+
 		// Create test presenter
 		$presenter = $this->createPresenter();
 

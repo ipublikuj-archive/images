@@ -50,6 +50,16 @@ class PresenterProviderTest extends TestCase
 		/** @var Providers\PresenterProvider $provider */
 		$provider = $loader->getProvider('presenter');
 
+		/** @var Images\ImagesLoader $loader */
+		$loader = $this->container->getService('images.loader');
+		/** @var Flysystem\FilesystemInterface $storage */
+		$storage = $loader->getStorage('default');
+
+		$filePath = __DIR__ . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'ipublikuj-logo-large.png';
+
+		/** Upload image to storage */
+		$storage->write('ipublikuj-logo-large.png', file_get_contents($filePath));
+
 		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '50x50');
 		Assert::same('/images/50x50/ipublikuj-logo-large.png?storage=default', $url);
 		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '120x120');

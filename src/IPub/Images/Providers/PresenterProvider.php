@@ -77,8 +77,8 @@ class PresenterProvider extends Nette\Object implements IProvider
 			return '#';
 		}
 
-		if (!$fileSystem->has(($namespace === NULL ?: $namespace . DIRECTORY_SEPARATOR) . $filename)) {
-			throw new Exceptions\FileNotFoundException('Image: "' . ($namespace === NULL ?: $namespace . DIRECTORY_SEPARATOR) . '" in storage: "' . $storage . '" was not found.');
+		if (!$fileSystem->has(($namespace === NULL ? NULL : $namespace . DIRECTORY_SEPARATOR) . $filename)) {
+			throw new Exceptions\FileNotFoundException('Image: "' . ($namespace === NULL ? NULL : $namespace . DIRECTORY_SEPARATOR) . '" in storage: "' . $storage . '" was not found.');
 		}
 
 		// Parse size
