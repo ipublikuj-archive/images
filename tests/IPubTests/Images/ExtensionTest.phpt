@@ -52,7 +52,7 @@ class ExtensionTest extends Tester\TestCase
 		$dic = $this->createContainer();
 
 		Assert::true($dic->getService('images.loader') instanceof IPub\Images\ImagesLoader);
-		Assert::true($dic->getService('images.provider.presenter') instanceof Images\Providers\PresenterProvider);
+		Assert::true($dic->getService('images.providers.presenter') instanceof Images\Providers\PresenterProvider);
 		Assert::true($dic->getService('images.validator.default') instanceof IPub\Images\Validators\Validator);
 	}
 }
