@@ -55,13 +55,13 @@ class PresenterProviderTest extends TestCase
 		$filePath = __DIR__ . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'ipublikuj-logo-large.png';
 
 		/** Upload image to storage */
-		$storage->write('ipublikuj-logo-large.png', file_get_contents($filePath));
+		$storage->write('logo/ipublikuj-logo-large.png', file_get_contents($filePath));
 
-		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '50x50');
+		$url = $provider->request('default', 'logo', 'ipublikuj-logo-large.png', '50x50');
 		Assert::same('/images/50x50/ipublikuj-logo-large.png?storage=default', $url);
-		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '120x120');
+		$url = $provider->request('default', 'logo', 'ipublikuj-logo-large.png', '120x120');
 		Assert::same('/images/120x120/ipublikuj-logo-large.png?storage=default', $url);
-		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '50x50', 'fit');
+		$url = $provider->request('default', 'logo', 'ipublikuj-logo-large.png', '50x50', 'fit');
 		Assert::same('/images/50x50-fit/ipublikuj-logo-large.png?storage=default', $url);
 	}
 }
