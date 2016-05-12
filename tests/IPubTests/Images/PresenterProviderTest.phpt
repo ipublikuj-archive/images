@@ -49,9 +49,6 @@ class PresenterProviderTest extends TestCase
 		$loader = $this->container->getService('images.loader');
 		/** @var Providers\PresenterProvider $provider */
 		$provider = $loader->getProvider('presenter');
-
-		/** @var Images\ImagesLoader $loader */
-		$loader = $this->container->getService('images.loader');
 		/** @var Flysystem\FilesystemInterface $storage */
 		$storage = $loader->getStorage('default');
 
@@ -61,11 +58,24 @@ class PresenterProviderTest extends TestCase
 		$storage->write('ipublikuj-logo-large.png', file_get_contents($filePath));
 
 		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '50x50');
-		Assert::same('/images/50x50/ipublikuj-logo-large.png?storage=default', $url);
+		Assert::same('http:///images/50x50/ipublikuj-logo-large.png?storage=default', $url);
 		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '120x120');
-		Assert::same('/images/120x120/ipublikuj-logo-large.png?storage=default', $url);
+		Assert::same('http:///images/120x120/ipublikuj-logo-large.png?storage=default', $url);
 		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '50x50', 'fit');
-		Assert::same('/images/50x50-fit/ipublikuj-logo-large.png?storage=default', $url);
+		Assert::same('http:///images/50x50-fit/ipublikuj-logo-large.png?storage=default', $url);
+	}
+
+	public function tearDown()
+	{
+		parent::tearDown();
+
+		/** @var Images\ImagesLoader $loader */
+		$loader = $this->container->getService('images.loader');
+		/** @var Flysystem\FilesystemInterface $storage */
+		$storage = $loader->getStorage('default');
+
+		/** Upload image to storage */
+		$storage->delete('ipublikuj-logo-large.png');
 	}
 }
 
