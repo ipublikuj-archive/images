@@ -29,7 +29,7 @@ require_once __DIR__ . '/TestCase.php';
 
 class PresenterTest extends TestCase
 {
-	public function testCssDefaultComponent()
+	public function testRendering()
 	{
 		// Create test presenter
 		$presenter = $this->createPresenter();
