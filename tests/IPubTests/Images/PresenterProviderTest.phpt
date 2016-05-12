@@ -28,23 +28,8 @@ use League\Flysystem;
 
 require_once __DIR__ . '/TestCase.php';
 
-class PresenterProviderTest extends Tester\TestCase
+class PresenterProviderTest extends TestCase
 {
-	/**
-	 * @var Nette\DI\Container
-	 */
-	protected $container;
-
-	/**
-	 * Set up
-	 */
-	public function setUp()
-	{
-		parent::setUp();
-
-		$this->container = $this->createContainer();
-	}
-
 	public function testRegisteringProviders()
 	{
 		$provider = $this->container->getService('images.providers.presenter');
@@ -64,40 +49,13 @@ class PresenterProviderTest extends Tester\TestCase
 		$loader = $this->container->getService('images.loader');
 		/** @var Providers\PresenterProvider $provider */
 		$provider = $loader->getProvider('presenter');
-		/** @var Flysystem\FilesystemInterface $storage */
-		$storage = $loader->getStorage('default');
 
-		$filePath = __DIR__ . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'ipublikuj-logo-large.png';
-
-		/** Upload image to storage */
-		$storage->write('logo/ipublikuj-logo-large.png', file_get_contents($filePath));
-
-		$url = $provider->request('default', 'logo', 'ipublikuj-logo-large.png', '50x50');
-		Assert::same('http://images/logo/50x50/ipublikuj-logo-large.png?storage=default', $url);
-		$url = $provider->request('default', 'logo', 'ipublikuj-logo-large.png', '120x120');
-		Assert::same('http://images/logo/120x120/ipublikuj-logo-large.png?storage=default', $url);
-		$url = $provider->request('default', 'logo', 'ipublikuj-logo-large.png', '50x50', 'fit');
-		Assert::same('http://images/logo/50x50-fit/ipublikuj-logo-large.png?storage=default', $url);
-	}
-
-	/**
-	 * @return Nette\DI\Container
-	 */
-	protected function createContainer()
-	{
-		$config = new Nette\Configurator();
-		$config->setTempDirectory(TEMP_DIR);
-
-		$config->addParameters([
-			'wwwDir'    => realpath(__DIR__ . DIRECTORY_SEPARATOR . 'web'),
-			'uploadDir' => realpath(__DIR__ . DIRECTORY_SEPARATOR . 'upload'),
-		]);
-
-		Images\DI\ImagesExtension::register($config);
-
-		$config->addConfig(__DIR__ . '/files/config.neon', $config::NONE);
-
-		return $config->createContainer();
+		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '50x50');
+		Assert::same('/images/50x50/ipublikuj-logo-large.png?storage=default', $url);
+		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '120x120');
+		Assert::same('/images/120x120/ipublikuj-logo-large.png?storage=default', $url);
+		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '50x50', 'fit');
+		Assert::same('/images/50x50-fit/ipublikuj-logo-large.png?storage=default', $url);
 	}
 }
 
