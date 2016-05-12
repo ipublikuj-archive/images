@@ -39,15 +39,17 @@ use IPub\IPubModule;
 class ImagesExtension extends DI\CompilerExtension
 {
 	// Define tag string for router services
-	const TAG_MODULE_ROUTES = 'ipub.images.routes';
+	const TAG_EXTENSION_ROUTES = 'ipub.images.routes';
 
 	/**
 	 * @var array
 	 */
 	private $defaults = [
 		'routes'                => [],
+		'providers' => [
+			'presenter' => Images\Providers\PresenterProvider::CLASS_NAME
+		],
 		'prependRoutesToRouter' => TRUE,
-		'storage'               => [],
 		'rules'                 => [],
 		'wwwDir'                => NULL,
 	];
@@ -61,7 +63,7 @@ class ImagesExtension extends DI\CompilerExtension
 
 		// Check for valid values
 		Utils\Validators::assert($configuration['wwwDir'], 'string', 'Web public dir');
-		Utils\Validators::assert($configuration['storage'], 'array', 'Images storage');
+		Utils\Validators::assert($configuration['providers'], 'array', 'Images providers');
 		Utils\Validators::assert($configuration['routes'], 'array', 'Images routes');
 
 		// Extension loader
@@ -83,10 +85,11 @@ class ImagesExtension extends DI\CompilerExtension
 			Utils\Validators::assert($rule['width'], 'int', 'Rule width');
 			Utils\Validators::assert($rule['height'], 'int', 'Rule height');
 
-			$validator->addSetup('$service->addRule(?, ?, ?)', [
+			$validator->addSetup('$service->addRule(?, ?, ?, ?)', [
 				$rule['width'],
 				$rule['height'],
 				isset($rule['algorithm']) ? $rule['algorithm'] : NULL,
+				isset($rule['storage']) ? $rule['storage'] : NULL,
 			]);
 		}
 
@@ -107,7 +110,7 @@ class ImagesExtension extends DI\CompilerExtension
 				$builder->addDefinition($this->prefix('route.' . $i))
 					->setClass(Application\Route::CLASS_NAME, [$mask, $metadata])
 					->setAutowired(FALSE)
-					->addTag(self::TAG_MODULE_ROUTES)
+					->addTag(self::TAG_EXTENSION_ROUTES)
 					->setInject(FALSE);
 
 				// Add route to router
@@ -119,12 +122,11 @@ class ImagesExtension extends DI\CompilerExtension
 			}
 		}
 
-		foreach ($configuration['storage'] as $name => $provider) {
+		foreach ($configuration['providers'] as $name => $provider) {
 			$this->compiler->parseServices($builder, [
-				'services' => [$this->prefix('storage.' . $name) => $provider],
+				'services' => [$this->prefix('provider.' . $name) => $provider],
 			]);
-
-			$loader->addSetup('registerStorage', [$this->prefix('@storage.' . $name)]);
+			$loader->addSetup('registerProvider', [$name, $this->prefix('@provider.' . $name)]);
 		}
 
 		// Update presenters mapping
@@ -165,7 +167,7 @@ class ImagesExtension extends DI\CompilerExtension
 				$router = $builder->getDefinition('router');
 			}
 
-			foreach (array_keys($builder->findByTag(self::TAG_MODULE_ROUTES)) as $service) {
+			foreach (array_keys($builder->findByTag(self::TAG_EXTENSION_ROUTES)) as $service) {
 				$router->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', ['@'. $service]);
 			}
 		}
@@ -178,19 +180,7 @@ class ImagesExtension extends DI\CompilerExtension
 			->addSetup('addFilter', ['isSquare', [$this->prefix('@helpers'), 'isSquare']])
 			->addSetup('addFilter', ['isHigher', [$this->prefix('@helpers'), 'isHigher']])
 			->addSetup('addFilter', ['isWider', [$this->prefix('@helpers'), 'isWider']])
-			->addSetup('addFilter', ['fromString', [$this->prefix('@helpers'), 'fromString']])
 			->addSetup('addFilter', ['getImagesLoaderService', [$this->prefix('@helpers'), 'getImagesLoaderService']]);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function afterCompile(Code\ClassType $class)
-	{
-		parent::afterCompile($class);
-
-		$initialize = $class->methods['initialize'];
-		$initialize->addBody('IPub\Images\Forms\Controls\ImageUploadControl::register();');
 	}
 
 	/**

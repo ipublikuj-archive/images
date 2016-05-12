@@ -34,12 +34,6 @@ class PresenterTest extends TestCase
 		// Create test presenter
 		$presenter = $this->createPresenter();
 
-		$loader = $this->container->getService('images.loader');
-
-		/** @var Images\Storage\FileStorage $storage */
-		$storage = $loader->getStorage('default');
-		$storage->setPresenter($presenter);
-
 		// Create GET request
 		$request = new Application\Request('Test', 'GET', ['action' => 'default']);
 		// & fire presenter & catch response
@@ -58,8 +52,8 @@ class PresenterTest extends TestCase
 		// Get all <a /> elements
 		$aElements = $dq->find('a');
 
-		Assert::same('/images/original/ipublikuj-logo-large.png?storage=' . (string) $storage, (string) $aElements[0]->attributes()->{'href'});
-		Assert::same('/images/50x50-4/ipublikuj-logo-large.png?storage=' . (string) $storage, (string) $imgElements[0]->attributes()->{'src'});
+		Assert::same('/images/original/ipublikuj-logo-large.png?storage=default', (string) $aElements[0]->attributes()->{'href'});
+		Assert::same('/images/50x50-4/ipublikuj-logo-large.png?storage=default', (string) $imgElements[0]->attributes()->{'src'});
 	}
 }
 

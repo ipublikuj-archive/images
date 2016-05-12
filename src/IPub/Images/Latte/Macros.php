@@ -36,7 +36,7 @@ final class Macros extends MacroSet
 {
 	/**
 	 * Register latte macros
-	 * 
+	 *
 	 * @param Compiler $compiler
 	 *
 	 * @return static
@@ -46,13 +46,10 @@ final class Macros extends MacroSet
 		$me = new static($compiler);
 
 		/**
-		 * {src storage://[namespace/$name[, $width, $height[, $algorithm]]}
+		 * {src provider:storage://[namespace/$name[, $width, $height[, $algorithm]]}
 		 */
-		$me->addMacro('src', function (MacroNode $node, PhpWriter $writer) use ($me) {
-			return $me->macroSrc($node, $writer);
-		}, NULL, function (MacroNode $node, PhpWriter $writer) use ($me) {
-			return ' ?> ' . ($node->htmlNode->name === 'a' ? 'href' : 'src') . '="<?php ' . $me->macroSrc($node, $writer) . ' ?>"<?php ';
-		});
+		self::registerMacro('src', $me);
+		self::registerMacro('img', $me);
 
 		return $me;
 	}
@@ -75,9 +72,10 @@ final class Macros extends MacroSet
 	 */
 	public static function prepareArguments(array $macro)
 	{
-		preg_match("/\b(?P<storage>[a-zA-Z]+)\:\/\/(?:(?<namespace>[a-zA-Z0-9-_\/]+)\/)?(?<name>[a-zA-Z0-9-_]+).(?P<extension>[a-zA-Z]{3}+)/i", $macro[0], $matches);
+		preg_match("/\b(?P<provider>[a-zA-Z]+)\:(?P<storage>[a-zA-Z]+)\:\/\/(?:(?<namespace>[a-zA-Z0-9-_\/]+)\/)?(?<name>[a-zA-Z0-9-_]+).(?P<extension>[a-zA-Z]{3}+)/i", $macro[0], $matches);
 
 		$arguments = [
+			'provider'  => isset($matches['provider']) ? $matches['provider'] : NULL,
 			'storage'   => isset($matches['storage']) ? $matches['storage'] : NULL,
 			'namespace' => isset($matches['namespace']) && trim(trim($matches['namespace']), '/') ? $matches['namespace'] : NULL,
 			'filename'  => isset($matches['name']) && isset($matches['extension']) ? $matches['name'] . '.' . $matches['extension'] : NULL,
@@ -86,5 +84,18 @@ final class Macros extends MacroSet
 		];
 
 		return $arguments;
+	}
+
+	/**
+	 * @param string $name
+	 * @param Macros $macros
+	 */
+	private static function registerMacro($name, Macros $macros)
+	{
+		$macros->addMacro($name, function (MacroNode $node, PhpWriter $writer) use ($macros) {
+			return $macros->macroSrc($node, $writer);
+		}, NULL, function (MacroNode $node, PhpWriter $writer) use ($macros) {
+			return ' ?> ' . ($node->htmlNode->name === 'a' ? 'href' : 'src') . '="<?php ' . $macros->macroSrc($node, $writer) . ' ?>"<?php ';
+		});
 	}
 }

@@ -22,7 +22,8 @@ use Nette;
  * @package        iPublikuj:Images!
  * @subpackage     Validators
  *
- * @author         dotBlue <http://dotblue.net>
+ * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @inspiredBy     dotBlue <http://dotblue.net>
  */
 class Validator extends Nette\Object implements IValidator
 {
@@ -39,16 +40,18 @@ class Validator extends Nette\Object implements IValidator
 	/**
 	 * Adds rule
 	 *
-	 * @param  int $width
-	 * @param  int $height
-	 * @param  int|string $algorithm
+	 * @param int $width
+	 * @param int $height
+	 * @param int|string|NULL $algorithm
+	 * @param string|NULL $storage
 	 */
-	public function addRule($width, $height, $algorithm = NULL)
+	public function addRule($width, $height, $algorithm = NULL, $storage = NULL)
 	{
 		$this->rules[] = [
 			'width'     => (int) $width,
 			'height'    => (int) $height,
 			'algorithm' => $algorithm === NULL ? NULL : (string) $algorithm,
+			'storage'   => $storage === NULL ? NULL : (string) $storage,
 		];
 	}
 
@@ -58,25 +61,27 @@ class Validator extends Nette\Object implements IValidator
 	 * @param int $width
 	 * @param int $height
 	 * @param int $algorithm
+	 * @param string|NULL $storage
 	 *
 	 * @return bool
 	 */
-	public function validate($width, $height, $algorithm)
+	public function validate($width, $height, $algorithm = NULL, $storage = NULL)
 	{
 		foreach ($this->rules as $rule) {
+			if ($rule['storage'] !== NULL && $rule['storage'] !== $storage) {
+				continue;
+			}
+
 			if (
-				(int) $width === $rule['width']
-				&& (int) $height === $rule['height']
-				&& (
-					!isset($algorithm)
-					|| (int) $algorithm === $rule['algorithm']
-				)
+				(int) $width !== $rule['width']
+				|| (int) $height !== $rule['height']
+				|| ($rule['algorithm'] !== NULL && $rule['algorithm'] !== $algorithm)
 			) {
-				return TRUE;
+				return FALSE;
 			}
 		}
 
-		return count($this->rules) > 0 ? FALSE : TRUE;
+		return TRUE;
 	}
 
 	/**

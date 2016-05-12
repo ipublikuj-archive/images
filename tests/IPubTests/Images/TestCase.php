@@ -74,7 +74,7 @@ class TestCase extends Tester\TestCase
 
 		$config->addParameters([
 			"wwwDir"    => realpath(__DIR__ . DIRECTORY_SEPARATOR . 'web'),
-			"uploadDir" => realpath(__DIR__ . DIRECTORY_SEPARATOR . 'upload'),
+			'uploadDir' => realpath(__DIR__ . DIRECTORY_SEPARATOR . 'upload'),
 		]);
 
 		Images\DI\ImagesExtension::register($config);
@@ -95,9 +95,4 @@ class TestPresenter extends UI\Presenter
 		// Set template for component testing
 		$this->template->setFile(__DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'default.latte');
 	}
-}
-
-class DefaultImagesStorage extends Images\Storage\FileStorage
-{
-
 }

@@ -14,5 +14,5 @@ services:
 	# Default image storage
 	imagesStorage:
 		class: IPubTests\Images\DefaultImagesStorage
-		arguments: [%uploadDir%, %wwwDir%]
+		arguments: [%wwwDir%]
 		tags: [cms.images]

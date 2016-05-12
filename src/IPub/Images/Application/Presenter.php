@@ -22,6 +22,9 @@ use Nette\Utils;
 use IPub;
 use IPub\Images;
 use IPub\Images\Exceptions;
+use IPub\Images\Validators;
+
+use League\Flysystem;
 
 /**
  * Micro-module presenter for handling images requests
@@ -64,6 +67,16 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	private $imagesLoader;
 
 	/**
+	 * @var Validators\Validator
+	 */
+	private $validator;
+
+	/**
+	 * @var Flysystem\MountManager
+	 */
+	private $mountManager;
+
+	/**
 	 * @var string
 	 */
 	private $webDir;
@@ -71,13 +84,17 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	/**
 	 * @param string $webDir
 	 * @param Images\ImagesLoader $imagesLoader
-	 * @param Http\IRequest $httpRequest
+	 * @param Validators\Validator $validator
+	 * @param Flysystem\MountManager $mountManager
+	 * @param Http\IRequest|NULL $httpRequest
 	 * @param Http\IResponse $httpResponse
-	 * @param Application\IRouter $router
+	 * @param Application\IRouter|NULL $router
 	 */
 	public function __construct(
 		$webDir,
 		Images\ImagesLoader $imagesLoader,
+		Validators\Validator $validator,
+		Flysystem\MountManager $mountManager,
 		Http\IRequest $httpRequest = NULL,
 		Http\IResponse $httpResponse,
 		Application\IRouter $router = NULL
@@ -85,6 +102,8 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 		$this->webDir = $webDir;
 
 		$this->imagesLoader = $imagesLoader;
+		$this->validator = $validator;
+		$this->mountManager = $mountManager;
 		$this->httpRequest = $httpRequest;
 		$this->httpResponse = $httpResponse;
 		$this->router = $router;
@@ -138,132 +157,136 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 		$size = isset($params['size']) ? $params['size'] : NULL;
 		$algorithm = isset($params['algorithm']) ? $params['algorithm'] : NULL;
 
-		$this->generateImage($namespace, $filename, $extension, $size, $algorithm, $storage);
+		$this->generateImage($storage, $namespace, $filename, $extension, $size, $algorithm);
 	}
 
 	/**
+	 * @param string $storage
 	 * @param string $namespace
 	 * @param string $size
 	 * @param string $filename
 	 * @param string $extension
 	 * @param string $algorithm
-	 * @param string $storage
 	 *
 	 * @throws Application\BadRequestException
 	 * @throws Exceptions\InvalidArgumentException
 	 */
-	private function generateImage($namespace, $filename, $extension, $size, $algorithm, $storage)
+	private function generateImage($storage, $namespace, $filename, $extension, $size, $algorithm)
 	{
-		$storage = $this->imagesLoader->getStorage($storage);
+		try {
+			$fileSystem = $this->mountManager->getFilesystem($storage);
 
-		$width = $height = 0;
+			$width = $height = 0;
 
-		$size = Utils\Strings::lower($size);
+			$size = Utils\Strings::lower($size);
 
-		// Extract size
-		if (strpos($size, 'x') !== FALSE) {
-			list($width, $height) = explode('x', $size);
+			// Extract size
+			if (strpos($size, 'x') !== FALSE) {
+				list($width, $height) = explode('x', $size);
 
-		} elseif ($size !== 'original') {
-			$width = (int) $size;
+			} elseif ($size !== 'original') {
+				$width = (int) $size;
 
-		} elseif ($size === 'original') {
-			$width = $height = NULL;
-		}
-
-		// Extract algorithm
-		if ($algorithm === NULL) {
-			$algorithm = Utils\Image::FIT;
-
-		} elseif (!is_int($algorithm) && !is_array($algorithm)) {
-			switch (strtolower($algorithm)) {
-				case 'fit':
-					$algorithm = Utils\Image::FIT;
-					break;
-
-				case 'fill':
-					$algorithm = Utils\Image::FILL;
-					break;
-
-				case 'exact':
-					$algorithm = Utils\Image::EXACT;
-					break;
-
-				case 'shrink_only':
-				case 'shrinkonly':
-				case 'shrink-only':
-					$algorithm = Utils\Image::SHRINK_ONLY;
-					break;
-
-				case 'stretch':
-					$algorithm = Utils\Image::STRETCH;
-					break;
-
-				default:
-					$algorithm = ctype_digit($algorithm) ? (int) $algorithm : NULL;
+			} elseif ($size === 'original') {
+				$width = $height = NULL;
 			}
 
-		} else {
-			$algorithm = NULL;
-		}
+			// Extract algorithm
+			if ($algorithm === NULL) {
+				$algorithm = Utils\Image::FIT;
 
-		// Validate params
-		if (!$storage->getValidator()->validate($width, $height, $algorithm)) {
-			throw new Application\BadRequestException;
-		}
+			} elseif (!is_int($algorithm) && !is_array($algorithm)) {
+				switch (strtolower($algorithm)) {
+					case 'fit':
+						$algorithm = Utils\Image::FIT;
+						break;
 
-		$storage->setNamespace($namespace);
+					case 'fill':
+						$algorithm = Utils\Image::FILL;
+						break;
 
-		$image = $storage->get($filename . '.' . $extension);
+					case 'exact':
+						$algorithm = Utils\Image::EXACT;
+						break;
 
-		if (!$image instanceof Images\Image\Image && !$image instanceof Utils\Image) {
-			$this->httpResponse->setHeader('Content-Type', 'image/jpeg');
-			$this->httpResponse->setCode(Http\IResponse::S404_NOT_FOUND);
+					case 'shrink_only':
+					case 'shrinkonly':
+					case 'shrink-only':
+						$algorithm = Utils\Image::SHRINK_ONLY;
+						break;
 
-			exit;
-		}
+					case 'stretch':
+						$algorithm = Utils\Image::STRETCH;
+						break;
 
-		$destination = $this->webDir . DIRECTORY_SEPARATOR . $this->httpRequest->getUrl()->getPath();
-		$dirname = dirname($destination);
-		if (!is_dir($dirname) && !$success = @mkdir($dirname, 0777, TRUE)) {
-			throw new Application\BadRequestException;
-		}
+					default:
+						$algorithm = ctype_digit($algorithm) ? (int) $algorithm : NULL;
+				}
 
-		if ($image instanceof Images\Image\Image) {
-			$mime = Images\Files\MimeMapper::getMimeFromFilename($image->getFile());
-			// Check if file is allowed image type
-			if (in_array($mime, ['image/jpeg', 'image/png', 'image/gif'])) {
-				// ...& create image object
-				$image = Utils\Image::fromFile($image->getFile());
-			}
-		}
-
-		if ($image instanceof Utils\Image) {
-			// Process image resizing etc.
-			if ($width || $height) {
-				$image->resize($width, $height, $algorithm);
+			} else {
+				$algorithm = NULL;
 			}
 
-			// Save into new place
-			$success = $image->save($destination, 90);
-
-			if (!$success) {
+			// Validate params
+			if (!$this->validator->validate($width, $height, $algorithm, $storage)) {
 				throw new Application\BadRequestException;
 			}
 
-			$image->send();
-
-		} elseif ((string) $image && is_file((string) $image)) {
 			try {
-				Utils\FileSystem::copy((string) $image, $destination);
+				$file = $namespace . DIRECTORY_SEPARATOR . $filename . '.' . $extension;
 
-				(new Images\Application\ImageResponse($destination))->send($this->httpRequest, $this->httpResponse);
+				$image = $fileSystem->read($file);
 
-			} catch (\Exception $ex) {
-				throw new Application\BadRequestException;
+				$destination = $this->webDir . $this->httpRequest->getUrl()->getPath();
+
+				$dirname = dirname($destination);
+
+				if (!is_dir($dirname) && !$success = @mkdir($dirname, 0777, TRUE)) {
+					throw new Application\BadRequestException;
+				}
+
+				$mimeType = $fileSystem->getMimetype($file);
+
+				// Check if file is allowed image type
+				if (in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif'])) {
+					// ...& create image object
+					$image = Utils\Image::fromString($image);
+				}
+
+				if ($image instanceof Utils\Image) {
+					// Process image resizing etc.
+					if ($width || $height) {
+						$image->resize($width, $height, $algorithm);
+					}
+
+					// Save into new place
+					$success = $image->save($destination, 90);
+
+					if (!$success) {
+						throw new Application\BadRequestException;
+					}
+
+					$image->send();
+
+				} else {
+					try {
+						Utils\FileSystem::write($destination, $image);
+
+						(new Images\Application\ImageResponse($destination, $mimeType))->send($this->httpRequest, $this->httpResponse);
+
+					} catch (\Exception $ex) {
+						throw new Application\BadRequestException;
+					}
+				}
+
+			} catch (Flysystem\FileNotFoundException $ex) {
+				$this->httpResponse->setHeader('Content-Type', 'image/jpeg');
+				$this->httpResponse->setCode(Http\IResponse::S404_NOT_FOUND);
+
+				exit;
 			}
 
-		} else {
+		} catch (\LogicException $ex) {
 			throw new Application\BadRequestException;
 		}
 

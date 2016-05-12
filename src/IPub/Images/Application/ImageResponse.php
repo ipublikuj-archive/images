@@ -40,15 +40,22 @@ class ImageResponse extends Nette\Object implements Application\IResponse
 	/**
 	 * @var string
 	 */
+	private $mimeType;
+
+	/**
+	 * @var string
+	 */
 	private $eTag;
 
 	/**
-	 * @param $filePath
+	 * @param string $filePath
+	 * @param string $mimeType
 	 * @param string|NULL $eTag
 	 */
-	public function __construct($filePath, $eTag = NULL)
+	public function __construct($filePath, $mimeType, $eTag = NULL)
 	{
 		$this->filePath = $filePath;
+		$this->mimeType = $mimeType;
 		$this->eTag = $eTag;
 	}
 
@@ -76,7 +83,7 @@ class ImageResponse extends Nette\Object implements Application\IResponse
 			return;
 		}
 
-		$httpResponse->setContentType(Images\Files\MimeMapper::getMimeFromFilename($this->filePath));
+		$httpResponse->setContentType($this->mimeType);
 		$httpResponse->setHeader('Content-Transfer-Encoding', 'binary');
 		$httpResponse->setHeader('Content-Length', filesize($this->filePath));
 		$httpResponse->setHeader('Content-Disposition', 'attachment; filename="' . basename($this->filePath) . '"');

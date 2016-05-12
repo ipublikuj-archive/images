@@ -15,6 +15,7 @@
 namespace IPub\Images\Templating;
 
 use Nette;
+use Nette\Utils;
 
 use Latte\Engine;
 
@@ -22,6 +23,8 @@ use IPub;
 use IPub\Images;
 use IPub\Images\Exceptions;
 use IPub\Images\Image;
+
+use League\Flysystem;
 
 /**
  * Templates helpers
@@ -46,8 +49,9 @@ final class Helpers extends Nette\Object
 	/**
 	 * @param Images\ImagesLoader $imagesLoader
 	 */
-	public function __construct(Images\ImagesLoader $imagesLoader)
-	{
+	public function __construct(
+		Images\ImagesLoader $imagesLoader
+	) {
 		$this->imagesLoader = $imagesLoader;
 	}
 
@@ -61,7 +65,6 @@ final class Helpers extends Nette\Object
 		$engine->addFilter('isSquare', [$this, 'isSquare']);
 		$engine->addFilter('isHigher', [$this, 'isHigher']);
 		$engine->addFilter('isWider', [$this, 'isWider']);
-		$engine->addFilter('fromString', [$this, 'fromString']);
 		$engine->addFilter('getImagesLoader', [$this, 'getImagesLoader']);
 	}
 
@@ -72,9 +75,9 @@ final class Helpers extends Nette\Object
 	 */
 	public function isSquare($file)
 	{
-		$size = $this->fromString($file)->getSize();
+		$image = $this->fromString($file);
 
-		return $size->getWidth() === $size->getHeight();
+		return $image->getWidth() === $image->getHeight();
 	}
 
 	/**
@@ -84,9 +87,9 @@ final class Helpers extends Nette\Object
 	 */
 	public function isHigher($file)
 	{
-		$size = $this->fromString($file)->getSize();
+		$image = $this->fromString($file);
 
-		return $size->getWidth() < $size->getHeight();
+		return $image->getWidth() < $image->getHeight();
 	}
 
 	/**
@@ -96,41 +99,53 @@ final class Helpers extends Nette\Object
 	 */
 	public function isWider($file)
 	{
-		$size = $this->fromString($file)->getSize();
+		$image = $this->fromString($file);
 
-		return $size->getWidth() > $size->getHeight();
+		return $image->getWidth() > $image->getHeight();
 	}
 
 	/**
 	 * @param string $file
 	 *
-	 * @return Image\Image
+	 * @return Utils\Image
 	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 * @throws Exceptions\InvalidStateException
 	 */
-	public function fromString($file)
+	private function fromString($file)
 	{
 		// Extract info from file string
 		preg_match("/\b(?P<storage>[a-zA-Z]+)\:\/\/(?:(?<namespace>[a-zA-Z0-9\/-]+)\/)?(?<name>[a-zA-Z0-9-]+).(?P<extension>[a-zA-Z]{3}+)/i", $file, $matches);
 
-		if (isset($matches['storage']) && ($storage = $this->imagesLoader->getStorage($matches['storage']))) {
-			if (isset($matches['namespace']) && trim($matches['namespace'])) {
-				$storage->setNamespace(trim($matches['namespace']));
-			}
+		$namespace = NULL;
 
-			$image = $storage->get($matches['name'] . '.' . $matches['extension']);
-
-			if ($image instanceof Image\Image) {
-				return $image;
-
-			} else {
-				throw new Exceptions\FileNotFoundException('Image: "'. $file .'" in storage: "'. $storage .'" was not found.');
-			}
-
+		if (isset($matches['namespace']) && trim($matches['namespace'])) {
+			$namespace = trim($matches['namespace']) . DIRECTORY_SEPARATOR;
 		}
 
-		throw new Exceptions\InvalidStateException('Images storage for file: "'. $file .'" was not found.');
+		$filePath = $namespace . $matches['name'] . '.' . $matches['extension'];
+
+		if (isset($matches['storage']) && ($storage = $matches['storage'])) {
+			try {
+				$fileSystem = $this->imagesLoader->getStorage($storage);
+
+				try {
+					$image = $fileSystem->read($filePath);
+
+					$image = Utils\Image::fromString($image);
+
+					return $image;
+
+				} catch (Flysystem\FileNotFoundException $ex) {
+					throw new Exceptions\FileNotFoundException('Image: "' . $filePath . '" in storage: "' . $storage . '" was not found.');
+				}
+
+			} catch (\LogicException $ex) {
+				throw new Exceptions\InvalidStateException('Images storage: "' . $storage . '" for file: "'. $filePath .'" was not found.');
+			}
+		}
+
+		throw new Exceptions\InvalidStateException('Images storage for file: "'. $filePath .'" was not found.');
 	}
 
 	/**

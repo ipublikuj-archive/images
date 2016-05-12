@@ -22,6 +22,8 @@
 	"require": {
 		"php"	: ">=5.4",
 
+		"ipub/flysystem"	: "^1.0.0",
+
 		"nette/application"	: "~2.2",
 		"nette/di"			: "~2.2",
 		"nette/http"		: "~2.2",

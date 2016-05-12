@@ -1,5 +1,19 @@
-	# Images helper
-	images:
-		routes:
-			- "/images[/<namespace .+>]/<size>[-<algorithm>]/<filename>.<extension>"
-		wwwDir: %wwwDir%
+extensions:
+	flysystem: IPub\Flysystem\DI\FlysystemExtension
+
+# Images helper
+images:
+	routes:
+		- "/images[/<namespace .+>]/<size>[-<algorithm>]/<filename>.<extension>"
+	wwwDir: %wwwDir%
+
+# Flysystem definition
+flysystem:
+	adapters:
+		defaultImageAdapter:
+			type: local
+			directory: %uploadDir%
+
+	filesystems:
+		default:
+			adapter: defaultImageAdapter

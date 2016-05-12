@@ -15,13 +15,16 @@
 namespace IPub\Images;
 
 use Nette;
+use Nette\Application;
 use Nette\Utils;
 
 use IPub;
 use IPub\Images;
 use IPub\Images\Exceptions;
-use IPub\Images\Storage;
+use IPub\Images\Providers;
 use IPub\Images\Templating;
+
+use League\Flysystem;
 
 /**
  * Images loader
@@ -39,19 +42,37 @@ final class ImagesLoader extends Nette\Object
 	const CLASS_NAME = __CLASS__;
 
 	/**
-	 * @var Storage\IStorage[]
+	 * @var Providers\IProvider[]
 	 */
-	private $imagesStorage = [];
+	private $providers = [];
 
 	/**
-	 * @param $arguments
+	 * @var Flysystem\MountManager
+	 */
+	private $mountManager;
+
+	/**
+	 * @param Flysystem\MountManager $mountManager
+	 */
+	public function __construct(
+		Flysystem\MountManager $mountManager
+	) {
+		$this->mountManager = $mountManager;
+	}
+
+	/**
+	 * @param array $arguments
 	 *
 	 * @return string
-	 *
+	 * 
 	 * @throws Exceptions\InvalidArgumentException
 	 */
 	public function request($arguments)
 	{
+		if (!isset($arguments['provider']) || $arguments['provider'] === NULL) {
+			throw new Exceptions\InvalidArgumentException('Please provide image provider name.');
+		}
+
 		if (!isset($arguments['storage']) || $arguments['storage'] === NULL) {
 			throw new Exceptions\InvalidArgumentException('Please provide image storage name.');
 		}
@@ -60,114 +81,55 @@ final class ImagesLoader extends Nette\Object
 			throw new Exceptions\InvalidArgumentException('Please provide filename.');
 		}
 
-		$storage = $arguments['storage'];
-		unset($arguments['storage']);
-
-		$namespace = $arguments['namespace'];
-		unset($arguments['namespace']);
-
-		$filename = $arguments['filename'];
-		unset($arguments['filename']);
-
-		$size = $arguments['size'];
-		unset($arguments['size']);
-
-		$algorithm = $arguments['algorithm'];
-		unset($arguments['algorithm']);
-
-		if (empty($filename)) {
-			return '#';
-		}
-
-		// Parse size
-		if (empty($size) || $size === NULL) {
-			$size = 'original';
-
-		} elseif (strpos($size, 'x') !== FALSE) {
-			list($width, $height) = explode('x', $size);
-
-			if ((int) $height > 0) {
-				$size = (int) $width . 'x' . (int) $height;
-
-			} else {
-				$size = (int) $width;
-			}
-
-		} else {
-			$size = (int) $size;
-		}
-
-		// Parse algorithm
-		if (empty($algorithm) || $algorithm === NULL) {
-			$algorithm = NULL;
-
-		} elseif ($algorithm === NULL) {
-			$algorithm = Utils\Image::FIT;
-
-		} elseif (!is_int($algorithm) && !is_array($algorithm)) {
-			switch (strtolower($algorithm)) {
-				case 'fit':
-					$algorithm = Utils\Image::FIT;
-					break;
-
-				case 'fill':
-					$algorithm = Utils\Image::FILL;
-					break;
-
-				case 'exact':
-					$algorithm = Utils\Image::EXACT;
-					break;
-
-				case 'shrink_only':
-				case 'shrinkonly':
-				case 'shrink-only':
-					$algorithm = Utils\Image::SHRINK_ONLY;
-					break;
-
-				case 'stretch':
-					$algorithm = Utils\Image::STRETCH;
-					break;
-
-				default:
-					$algorithm = NULL;
-			}
-
-		} else {
-			$algorithm = NULL;
-		}
-
-		$storage = $this->getStorage($storage);
-		$storage->setNamespace($namespace);
-
-		return $storage->request($filename, $size, $algorithm);
+		return $this->getProvider($arguments['provider'])->request(
+			$arguments['storage'],
+			$arguments['namespace'],
+			$arguments['filename'],
+			$arguments['size'],
+			$arguments['algorithm']
+		);
 	}
 
 	/**
-	 * @param string $storage
+	 * @param string $name
 	 *
-	 * @return Storage\IStorage
+	 * @return Flysystem\FilesystemInterface
 	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
-	public function getStorage($storage)
+	public function getStorage($name)
 	{
-		if (isset($this->imagesStorage[$storage])) {
-			return $this->imagesStorage[$storage];
-		}
+		try {
+			return $this->mountManager->getFilesystem($name);
 
-		throw new Exceptions\InvalidArgumentException('Storage "'. $storage .'" is not registered.');
+		} catch (\LogicException $ex) {
+			throw new Exceptions\InvalidArgumentException('Images storage: "' . $name . '" is not registered.');
+		}
 	}
 
 	/**
-	 * @param Storage\IStorage $storage
+	 * @param string $name
 	 *
-	 * @return $this
+	 * @return Providers\IProvider
+	 * 
+	 * @throws Exceptions\InvalidArgumentException
 	 */
-	public function registerStorage(Storage\IStorage $storage)
+	public function getProvider($name)
 	{
-		$this->imagesStorage[(string) $storage] = $storage;
+		if (isset($this->providers[$name])) {
+			return $this->providers[$name];
+		}
 
-		return $this;
+		throw new Exceptions\InvalidArgumentException('Image provider "'. $name .'" is not registered.');
+	}
+
+	/**
+	 * @param string $name
+	 * @param Providers\IProvider $provider
+	 */
+	public function registerProvider($name, Providers\IProvider $provider)
+	{
+		$this->providers[(string) $name] = $provider;
 	}
 
 	/**
