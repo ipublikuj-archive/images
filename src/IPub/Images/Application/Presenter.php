@@ -193,7 +193,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 
 				$image = $fileSystem->read($file);
 
-				if (!$image) {
+				if ($image === FALSE) {
 					throw new Application\BadRequestException;
 				}
 
