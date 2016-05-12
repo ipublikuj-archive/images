@@ -12,7 +12,7 @@ flysystem:
 	adapters:
 		defaultImageAdapter:
 			type: local
-			directory: %uploadDir%
+			directory: %mediaDir%
 
 	filesystems:
 		default:
