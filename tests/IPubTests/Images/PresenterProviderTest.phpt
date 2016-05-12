@@ -28,8 +28,23 @@ use League\Flysystem;
 
 require_once __DIR__ . '/TestCase.php';
 
-class PresenterProviderTest extends TestCase
+class PresenterProviderTest extends Tester\TestCase
 {
+	/**
+	 * @var Nette\DI\Container
+	 */
+	protected $container;
+
+	/**
+	 * Set up
+	 */
+	public function setUp()
+	{
+		parent::setUp();
+
+		$this->container = $this->createContainer();
+	}
+
 	public function testRegisteringProviders()
 	{
 		$provider = $this->container->getService('images.providers.presenter');
@@ -63,6 +78,26 @@ class PresenterProviderTest extends TestCase
 		Assert::same('http://images/logo/120x120/ipublikuj-logo-large.png?storage=default', $url);
 		$url = $provider->request('default', 'logo', 'ipublikuj-logo-large.png', '50x50', 'fit');
 		Assert::same('http://images/logo/50x50-fit/ipublikuj-logo-large.png?storage=default', $url);
+	}
+
+	/**
+	 * @return Nette\DI\Container
+	 */
+	protected function createContainer()
+	{
+		$config = new Nette\Configurator();
+		$config->setTempDirectory(TEMP_DIR);
+
+		$config->addParameters([
+			'wwwDir'    => realpath(__DIR__ . DIRECTORY_SEPARATOR . 'web'),
+			'uploadDir' => realpath(__DIR__ . DIRECTORY_SEPARATOR . 'upload'),
+		]);
+
+		Images\DI\ImagesExtension::register($config);
+
+		$config->addConfig(__DIR__ . '/files/config.neon', $config::NONE);
+
+		return $config->createContainer();
 	}
 }
 

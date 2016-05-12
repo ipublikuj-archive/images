@@ -27,6 +27,15 @@ require __DIR__ . '/../bootstrap.php';
 
 class ExtensionTest extends Tester\TestCase
 {
+	public function testCompilersServices()
+	{
+		$dic = $this->createContainer();
+
+		Assert::true($dic->getService('images.loader') instanceof IPub\Images\ImagesLoader);
+		Assert::true($dic->getService('images.providers.presenter') instanceof Images\Providers\PresenterProvider);
+		Assert::true($dic->getService('images.validator.default') instanceof IPub\Images\Validators\Validator);
+	}
+
 	/**
 	 * @return Nette\DI\Container
 	 */
@@ -45,15 +54,6 @@ class ExtensionTest extends Tester\TestCase
 		$config->addConfig(__DIR__ . '/files/config.neon', $config::NONE);
 
 		return $config->createContainer();
-	}
-
-	public function testCompilersServices()
-	{
-		$dic = $this->createContainer();
-
-		Assert::true($dic->getService('images.loader') instanceof IPub\Images\ImagesLoader);
-		Assert::true($dic->getService('images.providers.presenter') instanceof Images\Providers\PresenterProvider);
-		Assert::true($dic->getService('images.validator.default') instanceof IPub\Images\Validators\Validator);
 	}
 }
 
