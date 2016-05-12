@@ -193,6 +193,10 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 
 				$image = $fileSystem->read($file);
 
+				if (!$image) {
+					throw new Application\BadRequestException;
+				}
+
 				$destination = $this->webDir . $this->httpRequest->getUrl()->getPath();
 
 				$dirname = dirname($destination);
@@ -203,7 +207,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 
 				$mimeType = $fileSystem->getMimetype($file);
 
-				$this->createImage($image, $mimeType, $width, $height, $algorithm);
+				$this->createImage($image, ($mimeType ? $mimeType : NULL), $width, $height, $algorithm);
 
 			} catch (Flysystem\FileNotFoundException $ex) {
 				throw new Application\BadRequestException;
@@ -216,14 +220,14 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 
 	/**
 	 * @param string $imageContent
-	 * @param string $mimeType
+	 * @param string|NULL $mimeType
 	 * @param int $width
 	 * @param int $height
 	 * @param int $algorithm
 	 *
 	 * @throws Application\BadRequestException
 	 */
-	private function createImage($imageContent, $mimeType, $width, $height, $algorithm)
+	private function createImage($imageContent, $mimeType = NULL, $width, $height, $algorithm)
 	{
 		$destination = $this->webDir . $this->httpRequest->getUrl()->getPath();
 
@@ -250,7 +254,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 			try {
 				Utils\FileSystem::write($destination, $imageContent);
 
-				(new Images\Application\ImageResponse($destination, ($mimeType ? $mimeType : NULL)))->send($this->httpRequest, $this->httpResponse);
+				(new Images\Application\ImageResponse($destination, $mimeType))->send($this->httpRequest, $this->httpResponse);
 
 			} catch (\Exception $ex) {
 				throw new Application\BadRequestException;
