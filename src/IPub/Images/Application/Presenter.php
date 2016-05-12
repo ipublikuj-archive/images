@@ -194,37 +194,6 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 			// Extract algorithm
 			if ($algorithm === NULL) {
 				$algorithm = Utils\Image::FIT;
-
-			} elseif (!is_int($algorithm) && !is_array($algorithm)) {
-				switch (strtolower($algorithm)) {
-					case 'fit':
-						$algorithm = Utils\Image::FIT;
-						break;
-
-					case 'fill':
-						$algorithm = Utils\Image::FILL;
-						break;
-
-					case 'exact':
-						$algorithm = Utils\Image::EXACT;
-						break;
-
-					case 'shrink_only':
-					case 'shrinkonly':
-					case 'shrink-only':
-						$algorithm = Utils\Image::SHRINK_ONLY;
-						break;
-
-					case 'stretch':
-						$algorithm = Utils\Image::STRETCH;
-						break;
-
-					default:
-						$algorithm = ctype_digit($algorithm) ? (int) $algorithm : NULL;
-				}
-
-			} else {
-				$algorithm = NULL;
 			}
 
 			// Validate params
@@ -272,7 +241,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 					try {
 						Utils\FileSystem::write($destination, $image);
 
-						(new Images\Application\ImageResponse($destination, $mimeType))->send($this->httpRequest, $this->httpResponse);
+						(new Images\Application\ImageResponse($destination, ($mimeType ? $mimeType : NULL)))->send($this->httpRequest, $this->httpResponse);
 
 					} catch (\Exception $ex) {
 						throw new Application\BadRequestException;
@@ -280,16 +249,11 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 				}
 
 			} catch (Flysystem\FileNotFoundException $ex) {
-				$this->httpResponse->setHeader('Content-Type', 'image/jpeg');
-				$this->httpResponse->setCode(Http\IResponse::S404_NOT_FOUND);
-
-				exit;
+				throw new Application\BadRequestException;
 			}
 
 		} catch (\LogicException $ex) {
 			throw new Application\BadRequestException;
 		}
-
-		exit;
 	}
 }
