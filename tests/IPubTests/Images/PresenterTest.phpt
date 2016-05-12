@@ -77,8 +77,9 @@ class PresenterTest extends TestCase
 		/** @var Flysystem\FilesystemInterface $storage */
 		$storage = $loader->getStorage('default');
 
-		/** Upload image to storage */
-		$storage->delete('ipublikuj-logo-large.png');
+		if ($storage->has('ipublikuj-logo-large.png')) {
+			$storage->delete('ipublikuj-logo-large.png');
+		}
 	}
 }
 

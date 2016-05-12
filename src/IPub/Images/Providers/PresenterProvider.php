@@ -50,23 +50,15 @@ class PresenterProvider extends Nette\Object implements IProvider
 	private $linkGenerator;
 
 	/**
-	 * @var Application\Application
-	 */
-	private $application;
-
-	/**
 	 * @param Flysystem\MountManager $mountManager
 	 * @param Application\LinkGenerator $linkGenerator
-	 * @param Application\Application $application
 	 */
 	public function __construct(
 		Flysystem\MountManager $mountManager,
-		Application\LinkGenerator $linkGenerator,
-		Application\Application $application
+		Application\LinkGenerator $linkGenerator
 	) {
 		$this->mountManager = $mountManager;
 		$this->linkGenerator = $linkGenerator;
-		$this->application = $application;
 	}
 
 	/**
