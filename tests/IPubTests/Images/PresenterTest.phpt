@@ -33,16 +33,6 @@ class PresenterTest extends TestCase
 {
 	public function testRendering()
 	{
-		/** @var Images\ImagesLoader $loader */
-		$loader = $this->container->getService('images.loader');
-		/** @var Flysystem\FilesystemInterface $storage */
-		$storage = $loader->getStorage('default');
-
-		$filePath = __DIR__ . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'ipublikuj-logo-large.png';
-
-		/** Upload image to storage */
-		$storage->write('ipublikuj-logo-large.png', file_get_contents($filePath));
-
 		// Create test presenter
 		$presenter = $this->createPresenter();
 
@@ -66,20 +56,6 @@ class PresenterTest extends TestCase
 
 		Assert::same('http:///images/original/ipublikuj-logo-large.png?storage=default', (string) $aElements[0]->attributes()->{'href'});
 		Assert::same('http:///images/50x50-4/ipublikuj-logo-large.png?storage=default', (string) $imgElements[0]->attributes()->{'src'});
-	}
-
-	public function tearDown()
-	{
-		parent::tearDown();
-
-		/** @var Images\ImagesLoader $loader */
-		$loader = $this->container->getService('images.loader');
-		/** @var Flysystem\FilesystemInterface $storage */
-		$storage = $loader->getStorage('default');
-
-		if ($storage->has('ipublikuj-logo-large.png')) {
-			$storage->delete('ipublikuj-logo-large.png');
-		}
 	}
 }
 
