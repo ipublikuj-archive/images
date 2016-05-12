@@ -4,7 +4,7 @@ extensions:
 # Images helper
 images:
 	routes:
-		- "images[/<namespace .+>]/<size>[-<algorithm>]/<filename>.<extension>"
+		- "/images[/<namespace .+>]/<size>[-<algorithm>]/<filename>.<extension>"
 	wwwDir: %wwwDir%
 
 # Flysystem definition

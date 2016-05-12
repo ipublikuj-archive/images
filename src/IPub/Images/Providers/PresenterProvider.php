@@ -45,19 +45,27 @@ class PresenterProvider extends Nette\Object implements IProvider
 	private $mountManager;
 
 	/**
+	 * @var Application\LinkGenerator
+	 */
+	private $linkGenerator;
+
+	/**
 	 * @var Application\Application
 	 */
 	private $application;
 
 	/**
 	 * @param Flysystem\MountManager $mountManager
+	 * @param Application\LinkGenerator $linkGenerator
 	 * @param Application\Application $application
 	 */
 	public function __construct(
 		Flysystem\MountManager $mountManager,
+		Application\LinkGenerator $linkGenerator,
 		Application\Application $application
 	) {
 		$this->mountManager = $mountManager;
+		$this->linkGenerator = $linkGenerator;
 		$this->application = $application;
 	}
 
@@ -143,7 +151,7 @@ class PresenterProvider extends Nette\Object implements IProvider
 
 		try {
 			// Generate image url
-			return $this->application->getPresenter()->link(':IPub:Images:', [
+			return $this->linkGenerator->link('IPub:Images:', [
 				'storage'   => $storage,
 				'namespace' => $namespace,
 				'filename'  => basename($file->getBasename(), '.' . $file->getExtension()),
