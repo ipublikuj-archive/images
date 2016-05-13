@@ -44,6 +44,9 @@ class Converters
 		if (strpos($size, 'x') !== FALSE) {
 			list($width, $height) = explode('x', $size);
 
+			settype($width, 'int');
+			settype($height, 'int');
+
 		} elseif ($size !== 'original') {
 			$width = (int) $size;
 
@@ -51,7 +54,7 @@ class Converters
 			$width = $height = NULL;
 		}
 
-		return [(int) $width, (int) $height];
+		return [$width, $height];
 	}
 
 	/**
