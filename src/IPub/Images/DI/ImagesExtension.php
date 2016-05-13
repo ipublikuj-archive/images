@@ -22,7 +22,7 @@ use Nette\PhpGenerator as Code;
 use IPub;
 use IPub\Images;
 use IPub\Images\Application;
-use IPub\Images\Storage;
+use IPub\Images\Exceptions;
 use IPub\Images\Templating;
 use IPub\Images\Validators;
 
@@ -101,14 +101,31 @@ class ImagesExtension extends DI\CompilerExtension
 
 			$i = 0;
 
-			foreach ($configuration['routes'] as $mask => $metadata) {
-				if (!is_array($metadata)) {
-					$mask = $metadata;
-					$metadata = [];
+			foreach ($configuration['routes'] as $mask => $attributes) {
+				$metadata = [];
+				$flags = 0;
+
+				if (is_array($attributes) && array_key_exists('route', $attributes)) {
+					$mask = $attributes['route'];
+
+					if (array_key_exists('metadata', $attributes)) {
+						$metadata = $attributes['metadata'];
+					}
+
+					if (array_key_exists('secured', $attributes)) {
+						$flags = Nette\Application\Routers\Route::SECURED;
+					}
+
+				} elseif (is_int($mask) === TRUE) {
+					$mask = $attributes;
+				}
+
+				if (empty($mask) || is_string($mask) === FALSE) {
+					throw new Images\Exceptions\InvalidArgumentException('Provided route is not valid.');
 				}
 
 				$builder->addDefinition($this->prefix('route.' . $i))
-					->setClass(Application\Route::CLASS_NAME, [$mask, $metadata])
+					->setClass(Application\Route::CLASS_NAME, [$mask, $metadata, $flags])
 					->setAutowired(FALSE)
 					->addTag(self::TAG_EXTENSION_ROUTES)
 					->setInject(FALSE);

@@ -22,6 +22,7 @@ use Nette\Utils;
 use IPub;
 use IPub\Images;
 use IPub\Images\Exceptions;
+use IPub\Images\Helpers;
 use IPub\Images\Validators;
 
 use League\Flysystem;
@@ -163,20 +164,21 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	/**
 	 * @param string $storage
 	 * @param string $namespace
-	 * @param string $size
 	 * @param string $filename
 	 * @param string $extension
+	 * @param string $size
 	 * @param string $algorithm
 	 *
 	 * @throws Application\BadRequestException
-	 * @throws Exceptions\InvalidArgumentException
 	 */
 	private function generateImage($storage, $namespace, $filename, $extension, $size, $algorithm)
 	{
 		try {
 			$fileSystem = $this->mountManager->getFilesystem($storage);
 
-			list($width, $height) = $this->parseSize($size);
+			list($width, $height) = Helpers\Converters::parseSizeString($size);
+
+			$algorithm = Helpers\Converters::parseAlgorithm($algorithm);
 
 			// Extract algorithm
 			if ($algorithm === NULL) {
@@ -194,15 +196,15 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 				$image = $fileSystem->read($file);
 
 				if ($image === FALSE) {
-					throw new Application\BadRequestException;
+					throw new Application\BadRequestException('Image can\'t be read.');
 				}
 
 				$destination = $this->webDir . $this->httpRequest->getUrl()->getPath();
 
-				$dirname = dirname($destination);
+				$dirName = dirname($destination);
 
-				if (!is_dir($dirname) && !$success = @mkdir($dirname, 0777, TRUE)) {
-					throw new Application\BadRequestException;
+				if (!is_dir($dirName) && !$success = @mkdir($dirName, 0777, TRUE)) {
+					throw new Application\BadRequestException('Destination web folder is not writable.');
 				}
 
 				$mimeType = $fileSystem->getMimetype($file);
@@ -210,11 +212,11 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 				$this->createImage($image, ($mimeType ? $mimeType : NULL), $width, $height, $algorithm);
 
 			} catch (Flysystem\FileNotFoundException $ex) {
-				throw new Application\BadRequestException;
+				throw new Application\BadRequestException('File not found.');
 			}
 
 		} catch (\LogicException $ex) {
-			throw new Application\BadRequestException;
+			throw new Application\BadRequestException('Storage is not registered in IPub\Flysystem');
 		}
 	}
 
@@ -245,7 +247,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 			$success = $image->save($destination, 90);
 
 			if (!$success) {
-				throw new Application\BadRequestException;
+				throw new Application\BadRequestException('Image can\'t be save into destination web folder: "' . $destination . '"');
 			}
 
 			$image->send();
@@ -257,33 +259,8 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 				(new Images\Application\ImageResponse($destination, $mimeType))->send($this->httpRequest, $this->httpResponse);
 
 			} catch (\Exception $ex) {
-				throw new Application\BadRequestException;
+				throw new Application\BadRequestException('Image can\'t be save into destination web folder: "' . $destination . '"');
 			}
 		}
-	}
-
-	/**
-	 * @param string $size
-	 *
-	 * @return array
-	 */
-	private function parseSize($size)
-	{
-		$width = $height = 0;
-
-		$size = Utils\Strings::lower($size);
-
-		// Extract size
-		if (strpos($size, 'x') !== FALSE) {
-			list($width, $height) = explode('x', $size);
-
-		} elseif ($size !== 'original') {
-			$width = (int) $size;
-
-		} elseif ($size === 'original') {
-			$width = $height = NULL;
-		}
-
-		return [$width, $height];
 	}
 }

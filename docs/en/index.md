@@ -10,7 +10,7 @@ Second important think is, all storage services can store files outside of docum
 
 ## Installation
 
-The best way to install ipub/flickr is using  [Composer](http://getcomposer.org/):
+The best way to install ipub/images is using  [Composer](http://getcomposer.org/):
 
 ```sh
 $ composer require ipub/images

@@ -21,6 +21,7 @@ use Nette\Utils;
 use IPub;
 use IPub\Images;
 use IPub\Images\Exceptions;
+use IPub\Images\Helpers;
 
 use League\Flysystem;
 
@@ -82,61 +83,10 @@ class PresenterProvider extends Nette\Object implements IProvider
 		}
 
 		// Parse size
-		if (empty($size) || $size === NULL) {
-			$size = 'original';
-
-		} elseif (strpos($size, 'x') !== FALSE) {
-			list($width, $height) = explode('x', $size);
-
-			if ((int) $height > 0) {
-				$size = (int) $width . 'x' . (int) $height;
-
-			} else {
-				$size = (int) $width;
-			}
-
-		} else {
-			$size = (int) $size;
-		}
+		$size = Helpers\Converters::createSizeString($size);
 
 		// Parse algorithm
-		if (empty($algorithm) || $algorithm === NULL) {
-			$algorithm = NULL;
-
-		} elseif ($algorithm === NULL) {
-			$algorithm = Utils\Image::FIT;
-
-		} elseif (!is_int($algorithm) && !is_array($algorithm)) {
-			switch (strtolower($algorithm)) {
-				case 'fit':
-					$algorithm = Utils\Image::FIT;
-					break;
-
-				case 'fill':
-					$algorithm = Utils\Image::FILL;
-					break;
-
-				case 'exact':
-					$algorithm = Utils\Image::EXACT;
-					break;
-
-				case 'shrink_only':
-				case 'shrinkonly':
-				case 'shrink-only':
-					$algorithm = Utils\Image::SHRINK_ONLY;
-					break;
-
-				case 'stretch':
-					$algorithm = Utils\Image::STRETCH;
-					break;
-
-				default:
-					$algorithm = NULL;
-			}
-
-		} else {
-			$algorithm = NULL;
-		}
+		$algorithm = Helpers\Converters::createAlgorithmString($algorithm);
 
 		// Get file info
 		$file = new \SplFileInfo($filename);
