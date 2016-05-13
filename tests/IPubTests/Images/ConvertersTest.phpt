@@ -16,6 +16,7 @@
 namespace IPubTests\Images;
 
 use Nette;
+use Nette\Utils;
 
 use Tester;
 use Tester\Assert;
@@ -55,6 +56,38 @@ class ConvertersTest extends Tester\TestCase
 	}
 
 	/**
+	 * @return array[]|array
+	 */
+	public function dataStringToAlgorithm()
+	{
+		return [
+			['', NULL],
+			[NULL, NULL],
+			['fit', Utils\Image::FIT],
+			['exact', Utils\Image::EXACT],
+			['unknown', NULL],
+			[Utils\Image::FILL, Utils\Image::FILL],
+			[50, NULL],
+		];
+	}
+
+	/**
+	 * @return array[]|array
+	 */
+	public function dataAlgorithmToString()
+	{
+		return [
+			[Utils\Image::FIT, 'fit'],
+			[Utils\Image::SHRINK_ONLY, 'shrink-only'],
+			['fill', 'fill'],
+			['notKnown', NULL],
+			['shrink_only', 'shrink-only'],
+			['shrinkonly', 'shrink-only'],
+			[50, NULL],
+		];
+	}
+
+	/**
 	 * @dataProvider dataStringToSize
 	 *
 	 * @param string $string
@@ -74,6 +107,28 @@ class ConvertersTest extends Tester\TestCase
 	public function testCreateSizeString($size, $expected)
 	{
 		Assert::same($expected, Helpers\Converters::createSizeString($size));
+	}
+
+	/**
+	 * @dataProvider dataStringToAlgorithm
+	 *
+	 * @param string|int $algorithm
+	 * @param string $expected
+	 */
+	public function testParseAlgorithm($algorithm, $expected)
+	{
+		Assert::same($expected, Helpers\Converters::parseAlgorithm($algorithm));
+	}
+
+	/**
+	 * @dataProvider dataAlgorithmToString
+	 *
+	 * @param string $algorithm
+	 * @param string $expected
+	 */
+	public function testCreateAlgorithmString($algorithm, $expected)
+	{
+		Assert::same($expected, Helpers\Converters::createAlgorithmString($algorithm));
 	}
 }
 
