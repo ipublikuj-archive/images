@@ -93,44 +93,36 @@ class Converters
 		if (empty($algorithm) || $algorithm === NULL) {
 			$algorithm = NULL;
 
-		} elseif ($algorithm === NULL) {
-			$algorithm = Utils\Image::FIT;
-
 		} elseif (!is_int($algorithm) && !is_array($algorithm)) {
 			switch (strtolower($algorithm)) {
 				case 'fit':
-					$algorithm = Utils\Image::FIT;
-					break;
+					return Utils\Image::FIT;
 
 				case 'fill':
-					$algorithm = Utils\Image::FILL;
-					break;
+					return Utils\Image::FILL;
 
 				case 'exact':
-					$algorithm = Utils\Image::EXACT;
-					break;
+					return Utils\Image::EXACT;
 
 				case 'shrink_only':
 				case 'shrinkonly':
 				case 'shrink-only':
-					$algorithm = Utils\Image::SHRINK_ONLY;
-					break;
+					return Utils\Image::SHRINK_ONLY;
 
 				case 'stretch':
-					$algorithm = Utils\Image::STRETCH;
-					break;
+					return Utils\Image::STRETCH;
 
 				default:
-					$algorithm = NULL;
+					return NULL;
 			}
 
 		} elseif (is_int($algorithm)) {
 			if (!in_array($algorithm, [Utils\Image::FIT, Utils\Image::FILL, Utils\Image::EXACT, Utils\Image::SHRINK_ONLY, Utils\Image::STRETCH])) {
-				$algorithm = NULL;
+				return NULL;
 			}
 
 		} else {
-			$algorithm = NULL;
+			return NULL;
 		}
 
 		return $algorithm;
@@ -148,37 +140,32 @@ class Converters
 		if (is_int($algorithm)) {
 			switch ($algorithm) {
 				case Utils\Image::FIT:
-					$algorithm = 'fit';
-					break;
+					return 'fit';
 
 				case Utils\Image::FILL:
-					$algorithm = 'fill';
-					break;
+					return 'fill';
 
 				case Utils\Image::EXACT:
-					$algorithm = 'exact';
-					break;
+					return 'exact';
 
 				case Utils\Image::SHRINK_ONLY:
-					$algorithm = 'shrink-only';
-					break;
+					return 'shrink-only';
 
 				case Utils\Image::STRETCH:
-					$algorithm = 'stretch';
-					break;
+					return 'stretch';
 
 				default:
-					$algorithm = NULL;
+					return NULL;
 			}
 
 		} elseif (is_string($algorithm)) {
 			$algorithm = strtolower($algorithm);
 
 			if (in_array($algorithm, ['shrink_only', 'shrinkonly', 'shrink-only'])) {
-				$algorithm = 'shrink-only';
+				return 'shrink-only';
 
 			} elseif (!in_array($algorithm, ['fit', 'fill', 'exact', 'stretch'])) {
-				$algorithm = NULL;
+				return NULL;
 			}
 		}
 

@@ -55,7 +55,7 @@ class PresenterTest extends TestCase
 		$aElements = $dq->find('a');
 
 		Assert::same('http:///images/original/ipublikuj-logo-large.png?storage=default', (string) $aElements[0]->attributes()->{'href'});
-		Assert::same('http:///images/50x50-4/ipublikuj-logo-large.png?storage=default', (string) $imgElements[0]->attributes()->{'src'});
+		Assert::same('http:///images/50x50-fill/ipublikuj-logo-large.png?storage=default', (string) $imgElements[0]->attributes()->{'src'});
 	}
 }
 

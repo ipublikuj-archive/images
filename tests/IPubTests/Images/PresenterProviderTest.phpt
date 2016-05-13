@@ -55,7 +55,7 @@ class PresenterProviderTest extends TestCase
 		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '120x120');
 		Assert::same('http:///images/120x120/ipublikuj-logo-large.png?storage=default', $url);
 		$url = $provider->request('default', NULL, 'ipublikuj-logo-large.png', '50x50', 'fit');
-		Assert::same('http:///images/50x50-0/ipublikuj-logo-large.png?storage=default', $url);
+		Assert::same('http:///images/50x50-fit/ipublikuj-logo-large.png?storage=default', $url);
 	}
 }
 

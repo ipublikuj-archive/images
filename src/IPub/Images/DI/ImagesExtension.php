@@ -39,7 +39,10 @@ use IPub\IPubModule;
 class ImagesExtension extends DI\CompilerExtension
 {
 	// Define tag string for router services
-	const TAG_EXTENSION_ROUTES = 'ipub.images.routes';
+	const TAG_IMAGES_ROUTES = 'ipub.images.routes';
+
+	// Define tag string for providers services
+	const TAG_IMAGES_PROVIDERS = 'ipub.images.providers';
 
 	/**
 	 * @var array
@@ -80,63 +83,10 @@ class ImagesExtension extends DI\CompilerExtension
 		$validator = $builder->addDefinition($this->prefix('validator.default'))
 			->setClass(Validators\Validator::CLASS_NAME);
 
-		foreach ($configuration['rules'] as $rule) {
-			// Check for valid rules values
-			Utils\Validators::assert($rule['width'], 'int', 'Rule width');
-			Utils\Validators::assert($rule['height'], 'int', 'Rule height');
-
-			$validator->addSetup('$service->addRule(?, ?, ?, ?)', [
-				$rule['width'],
-				$rule['height'],
-				isset($rule['algorithm']) ? $rule['algorithm'] : NULL,
-				isset($rule['storage']) ? $rule['storage'] : NULL,
-			]);
-		}
+		$this->registerRules($configuration['rules'], $validator);
 
 		if ($configuration['routes']) {
-			$router = $builder->addDefinition($this->prefix('router'))
-				->setClass('Nette\Application\Routers\RouteList')
-				->addTag($this->prefix('routeList'))
-				->setAutowired(FALSE);
-
-			$i = 0;
-
-			foreach ($configuration['routes'] as $mask => $attributes) {
-				$metadata = [];
-				$flags = 0;
-
-				if (is_array($attributes) && array_key_exists('route', $attributes)) {
-					$mask = $attributes['route'];
-
-					if (array_key_exists('metadata', $attributes)) {
-						$metadata = $attributes['metadata'];
-					}
-
-					if (array_key_exists('secured', $attributes)) {
-						$flags = Nette\Application\Routers\Route::SECURED;
-					}
-
-				} elseif (is_int($mask) === TRUE) {
-					$mask = $attributes;
-				}
-
-				if (empty($mask) || is_string($mask) === FALSE) {
-					throw new Images\Exceptions\InvalidArgumentException('Provided route is not valid.');
-				}
-
-				$builder->addDefinition($this->prefix('route.' . $i))
-					->setClass(Application\Route::CLASS_NAME, [$mask, $metadata, $flags])
-					->setAutowired(FALSE)
-					->addTag(self::TAG_EXTENSION_ROUTES)
-					->setInject(FALSE);
-
-				// Add route to router
-				$router->addSetup('$service[] = ?', [
-					$this->prefix('@route.' . $i),
-				]);
-
-				$i++;
-			}
+			$this->registerRoutes($configuration['routes']);
 		}
 
 		foreach ($configuration['providers'] as $name => $provider) {
@@ -184,7 +134,7 @@ class ImagesExtension extends DI\CompilerExtension
 				$router = $builder->getDefinition('router');
 			}
 
-			foreach (array_keys($builder->findByTag(self::TAG_EXTENSION_ROUTES)) as $service) {
+			foreach (array_keys($builder->findByTag(self::TAG_IMAGES_ROUTES)) as $service) {
 				$router->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', ['@'. $service]);
 			}
 		}
@@ -209,5 +159,82 @@ class ImagesExtension extends DI\CompilerExtension
 		$configurator->onCompile[] = function (Nette\Configurator $configurator, Nette\DI\Compiler $compiler) use ($extensionName) {
 			$compiler->addExtension($extensionName, new ImagesExtension());
 		};
+	}
+
+	/**
+	 * @param array $routes
+	 *
+	 * @throws Exceptions\InvalidArgumentException
+	 */
+	private function registerRoutes($routes)
+	{
+		// Get container builder
+		$builder = $this->getContainerBuilder();
+
+		$router = $builder->addDefinition($this->prefix('router'))
+			->setClass('Nette\Application\Routers\RouteList')
+			->addTag($this->prefix('routeList'))
+			->setAutowired(FALSE);
+
+		$i = 0;
+
+		foreach ($routes as $mask => $attributes) {
+			$metadata = [];
+			$flags = 0;
+
+			if (is_array($attributes) && array_key_exists('route', $attributes)) {
+				$mask = $attributes['route'];
+
+				if (array_key_exists('metadata', $attributes)) {
+					$metadata = $attributes['metadata'];
+				}
+
+				if (array_key_exists('secured', $attributes)) {
+					$flags = Nette\Application\Routers\Route::SECURED;
+				}
+
+			} elseif (is_int($mask) === TRUE) {
+				$mask = $attributes;
+			}
+
+			if (empty($mask) || is_string($mask) === FALSE) {
+				throw new Images\Exceptions\InvalidArgumentException('Provided route is not valid.');
+			}
+
+			$builder->addDefinition($this->prefix('route.' . $i))
+				->setClass(Application\Route::CLASS_NAME, [$mask, $metadata, $flags])
+				->setAutowired(FALSE)
+				->addTag(self::TAG_IMAGES_ROUTES)
+				->setInject(FALSE);
+
+			// Add route to router
+			$router->addSetup('$service[] = ?', [
+				$this->prefix('@route.' . $i),
+			]);
+
+			$i++;
+		}
+	}
+
+	/**
+	 * @param array $rules
+	 * @param DI\ServiceDefinition $validator
+	 *
+	 * @throws Utils\AssertionException
+	 */
+	private function registerRules($rules, DI\ServiceDefinition $validator)
+	{
+		foreach ($rules as $rule) {
+			// Check for valid rules values
+			Utils\Validators::assert($rule['width'], 'int', 'Rule width');
+			Utils\Validators::assert($rule['height'], 'int', 'Rule height');
+
+			$validator->addSetup('$service->addRule(?, ?, ?, ?)', [
+				$rule['width'],
+				$rule['height'],
+				isset($rule['algorithm']) ? $rule['algorithm'] : NULL,
+				isset($rule['storage']) ? $rule['storage'] : NULL,
+			]);
+		}
 	}
 }
