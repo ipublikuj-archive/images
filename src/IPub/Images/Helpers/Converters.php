@@ -51,7 +51,7 @@ class Converters
 			$width = $height = NULL;
 		}
 
-		return [$width, $height];
+		return [(int) $width, (int) $height];
 	}
 
 	/**
