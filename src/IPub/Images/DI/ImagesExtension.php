@@ -272,6 +272,6 @@ class ImagesExtension extends DI\CompilerExtension
 	 */
 	private function getExtensionConfig()
 	{
-		return parent::getConfig($this->defaults);
+		return $this->getConfig($this->defaults);
 	}
 }
