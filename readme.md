@@ -27,7 +27,7 @@ extensions:
 
 ## Documentation
 
-Learn how to store and serve images using in [documentation](https://github.com/iPublikuj/images/blob/master/docs/en/index.md).
+Learn how to store and serve images with this library in [documentation](https://github.com/iPublikuj/images/blob/master/docs/en/index.md).
 
 ***
 Homepage [http://www.ipublikuj.eu](http://www.ipublikuj.eu) and repository [http://github.com/iPublikuj/images](http://github.com/iPublikuj/images).

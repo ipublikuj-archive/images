@@ -1,6 +1,6 @@
 <?php
 /**
- * FileNotFoundException.php
+ * NotAllowedImageSizeException.php
  *
  * @copyright      More in license.md
  * @license        http://www.ipublikuj.eu
@@ -9,13 +9,13 @@
  * @subpackage     Exceptions
  * @since          1.0.0
  *
- * @date           17.02.15
+ * @date           09.08.16
  */
 
 declare(strict_types = 1);
 
 namespace IPub\Images\Exceptions;
 
-class FileNotFoundException extends IOException implements IException
+class NotAllowedImageSizeException extends \Exception implements IException
 {
 }

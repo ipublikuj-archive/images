@@ -4,8 +4,8 @@ This extension brings you ability to store images in your application and serve 
 
 ## Concept
 
-Basic concept of this extensions is to use several storage, based on [Flysystem extension](https://github.com/iPublikuj/flysystem), places for example for each module or part of your application. Sou you can have e-shop images storage for e-shop module, or users avatars storage to store 
-users avatars.
+Basic concept of this extensions is to use several data storage based on [Flysystem extension](https://github.com/iPublikuj/flysystem). For example for each module or part of your application. Sou you can have e-shop images storage for 
+e-shop module, or users avatars storage to store users avatars.
 
 Second important think is, all storage services can store files outside of document root folder even on some cloud servers like AWS or own cloud.
 
@@ -28,7 +28,7 @@ extensions:
 
 ### Basic configuration
 
-At first you have to register your storage services in [Flysystem](https://github.com/iPublikuj/flysystem/blob/master/docs/en/index.md#quickstart).
+At first you have to register your storage services in [Flysystem extension](https://github.com/iPublikuj/flysystem/blob/master/docs/en/index.md#quickstart).
 
 ### Providers
 

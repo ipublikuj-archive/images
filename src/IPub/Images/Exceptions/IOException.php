@@ -12,6 +12,8 @@
  * @date           09.02.15
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images\Exceptions;
 
 class IOException extends \RuntimeException implements IException

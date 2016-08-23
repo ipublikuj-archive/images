@@ -12,6 +12,8 @@
  * @date           11.02.15
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images\Validators;
 
 /**
@@ -31,5 +33,5 @@ interface IValidator
 	 *
 	 * @return bool
 	 */
-	public function validate($width, $height, $algorithm);
+	public function validate(int $width, int $height, int $algorithm) : bool;
 }

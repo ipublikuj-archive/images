@@ -12,6 +12,8 @@
  * @date           16.01.15
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images\Exceptions;
 
 class InvalidArgumentException extends \Exception implements IException

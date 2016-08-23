@@ -12,6 +12,8 @@
  * @date           05.04.14
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images\Latte;
 
 use Nette;
@@ -23,6 +25,8 @@ use Latte\PhpWriter;
 use Latte\Macros\MacroSet;
 
 use IPub;
+use IPub\Images;
+use IPub\Images\Helpers;
 
 /**
  * Latte macros
@@ -60,28 +64,35 @@ final class Macros extends MacroSet
 	 *
 	 * @return string
 	 */
-	public function macroSrc(MacroNode $node, PhpWriter $writer)
+	public function macroSrc(MacroNode $node, PhpWriter $writer) : string
 	{
-		return $writer->write('echo %escape(%modify($template->getImagesLoaderService()->request(IPub\Images\Latte\Macros::prepareArguments([%node.args]))))');
+		$arguments = self::prepareMacroArguments($node->args);
+
+		$arguments = implode(',', array_map(function ($value, $key) {
+			return '"' . $key . '" => '. ($value ? '"' . $value . '"' : 'NULL');
+		}, array_values($arguments), array_keys($arguments)));
+
+		return $writer->write('echo %escape(call_user_func($this->filters->imageLink, array(' . $arguments . ')))');
 	}
 
 	/**
-	 * @param array $macro
+	 * @param string $macro
 	 *
 	 * @return array
 	 */
-	public static function prepareArguments(array $macro)
+	public static function prepareMacroArguments(string $macro) : array
 	{
-		preg_match("/\b(?P<provider>[a-zA-Z]+)\:(?P<storage>[a-zA-Z]+)\:\/\/(?:(?<namespace>[a-zA-Z0-9-_\/]+)\/)?(?<name>[a-zA-Z0-9-_]+).(?P<extension>[a-zA-Z]{3}+)/i", $macro[0], $matches);
+		$arguments = array_map(function ($value) {
+			return trim($value);
+		}, explode(',', $macro));
 
-		$arguments = [
-			'provider'  => isset($matches['provider']) ? $matches['provider'] : NULL,
-			'storage'   => isset($matches['storage']) ? $matches['storage'] : NULL,
-			'namespace' => isset($matches['namespace']) && trim(trim($matches['namespace']), '/') ? $matches['namespace'] : NULL,
-			'filename'  => isset($matches['name']) && isset($matches['extension']) ? $matches['name'] . '.' . $matches['extension'] : NULL,
-			'size'      => (isset($macro[1]) && !empty($macro[1])) ? $macro[1] : NULL,
-			'algorithm' => (isset($macro[2]) && !empty($macro[2])) ? $macro[2] : NULL,
-		];
+		$arguments = array_merge(
+			Helpers\Converters::parseImageString($arguments[0]),
+			[
+				'size'      => (isset($arguments[1]) && !empty($arguments[1])) ? $arguments[1] : NULL,
+				'algorithm' => (isset($arguments[2]) && !empty($arguments[2])) ? $arguments[2] : NULL,
+			]
+		);
 
 		return $arguments;
 	}
@@ -90,7 +101,7 @@ final class Macros extends MacroSet
 	 * @param string $name
 	 * @param Macros $macros
 	 */
-	private static function registerMacro($name, Macros $macros)
+	private static function registerMacro(string $name, Macros $macros)
 	{
 		$macros->addMacro($name, function (MacroNode $node, PhpWriter $writer) use ($macros) {
 			return $macros->macroSrc($node, $writer);

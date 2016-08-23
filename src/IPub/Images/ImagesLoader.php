@@ -12,6 +12,8 @@
  * @date           09.02.15
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images;
 
 use Nette;
@@ -67,7 +69,7 @@ final class ImagesLoader extends Nette\Object
 	 * 
 	 * @throws Exceptions\InvalidArgumentException
 	 */
-	public function request($arguments)
+	public function request(array $arguments) : string
 	{
 		if (!isset($arguments['provider']) || $arguments['provider'] === NULL) {
 			throw new Exceptions\InvalidArgumentException('Please provide image provider name.');
@@ -97,13 +99,13 @@ final class ImagesLoader extends Nette\Object
 	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
-	public function getStorage($name)
+	public function getStorage(string $name) : Flysystem\FilesystemInterface
 	{
 		try {
 			return $this->mountManager->getFilesystem($name);
 
 		} catch (\LogicException $ex) {
-			throw new Exceptions\InvalidArgumentException('Images storage: "' . $name . '" is not registered.');
+			throw new Exceptions\InvalidArgumentException(sprintf('Images storage: "%s" is not registered.', $name));
 		}
 	}
 
@@ -114,22 +116,22 @@ final class ImagesLoader extends Nette\Object
 	 * 
 	 * @throws Exceptions\InvalidArgumentException
 	 */
-	public function getProvider($name)
+	public function getProvider(string $name) : Providers\IProvider
 	{
 		if (isset($this->providers[$name])) {
 			return $this->providers[$name];
 		}
 
-		throw new Exceptions\InvalidArgumentException('Image provider "'. $name .'" is not registered.');
+		throw new Exceptions\InvalidArgumentException(sprintf('Image provider "%s" is not registered.', $name));
 	}
 
 	/**
 	 * @param string $name
 	 * @param Providers\IProvider $provider
 	 */
-	public function registerProvider($name, Providers\IProvider $provider)
+	public function registerProvider(string $name, Providers\IProvider $provider)
 	{
-		$this->providers[(string) $name] = $provider;
+		$this->providers[$name] = $provider;
 	}
 
 	/**

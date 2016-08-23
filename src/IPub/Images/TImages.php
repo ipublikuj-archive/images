@@ -12,6 +12,8 @@
  * @date           05.04.14
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images;
 
 use Nette;
@@ -32,12 +34,12 @@ trait TImages
 	/**
 	 * @var ImagesLoader
 	 */
-	public $imagesLoader;
+	protected $imagesLoader;
 
 	/**
 	 * @var Templating\Helpers
 	 */
-	private $imgHelpers;
+	protected $imgHelpers;
 
 	/**
 	 * @param ImagesLoader $imagesLoader

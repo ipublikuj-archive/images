@@ -12,6 +12,8 @@
  * @date           09.02.15
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images\Application;
 
 use Nette;
@@ -41,7 +43,7 @@ class Route extends Application\Routers\Route
 	 * @param array $metadata
 	 * @param int $flags
 	 */
-	public function __construct($mask, $metadata = [], $flags = 0)
+	public function __construct(string $mask, array $metadata = [], int $flags = 0)
 	{
 		// Define micro-module presenter
 		$metadata['presenter'] = 'IPub:Images';

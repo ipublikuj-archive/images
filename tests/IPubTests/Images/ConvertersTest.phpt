@@ -88,12 +88,45 @@ class ConvertersTest extends Tester\TestCase
 	}
 
 	/**
+	 * @return array[]|array
+	 */
+	public function dataParseImageString()
+	{
+		return [
+			['presenter:filesystem://namespace/file.jpg', [
+				'provider'  => 'presenter',
+				'storage'   => 'filesystem',
+				'namespace' => 'namespace',
+				'filename'  => 'file.jpg',
+			]],
+			['presenter:filesystem://file.jpg', [
+				'provider'  => 'presenter',
+				'storage'   => 'filesystem',
+				'namespace' => NULL,
+				'filename'  => 'file.jpg',
+			]],
+			['filesystem://namespace/file.jpg', [
+				'provider'  => NULL,
+				'storage'   => 'filesystem',
+				'namespace' => 'namespace',
+				'filename'  => 'file.jpg',
+			]],
+			['filesystem://file.jpg', [
+				'provider'  => NULL,
+				'storage'   => 'filesystem',
+				'namespace' => NULL,
+				'filename'  => 'file.jpg',
+			]],
+		];
+	}
+
+	/**
 	 * @dataProvider dataStringToSize
 	 *
 	 * @param string $string
 	 * @param array $expected
 	 */
-	public function testParseSizeString($string, array $expected)
+	public function testParseSizeString(string $string, array $expected)
 	{
 		Assert::same($expected, Helpers\Converters::parseSizeString($string));
 	}
@@ -101,10 +134,10 @@ class ConvertersTest extends Tester\TestCase
 	/**
 	 * @dataProvider dataSizeToString
 	 *
-	 * @param string $size
-	 * @param string $expected
+	 * @param string|NULL $size
+	 * @param string|int $expected
 	 */
-	public function testCreateSizeString($size, $expected)
+	public function testCreateSizeString(string $size = NULL, $expected)
 	{
 		Assert::same($expected, Helpers\Converters::createSizeString($size));
 	}
@@ -112,10 +145,10 @@ class ConvertersTest extends Tester\TestCase
 	/**
 	 * @dataProvider dataStringToAlgorithm
 	 *
-	 * @param string|int $algorithm
-	 * @param string $expected
+	 * @param string|int|NULL $algorithm
+	 * @param string|int $expected
 	 */
-	public function testParseAlgorithm($algorithm, $expected)
+	public function testParseAlgorithm($algorithm = NULL, $expected = NULL)
 	{
 		Assert::same($expected, Helpers\Converters::parseAlgorithm($algorithm));
 	}
@@ -126,9 +159,20 @@ class ConvertersTest extends Tester\TestCase
 	 * @param string $algorithm
 	 * @param string $expected
 	 */
-	public function testCreateAlgorithmString($algorithm, $expected)
+	public function testCreateAlgorithmString(string $algorithm, string $expected = NULL)
 	{
 		Assert::same($expected, Helpers\Converters::createAlgorithmString($algorithm));
+	}
+
+	/**
+	 * @dataProvider dataParseImageString
+	 *
+	 * @param string $file
+	 * @param array $expected
+	 */
+	public function testParseImageString(string $file, array $expected)
+	{
+		Assert::same($expected, Helpers\Converters::parseImageString($file));
 	}
 }
 

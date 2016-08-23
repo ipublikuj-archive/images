@@ -1,9 +1,10 @@
-nette:
-	application:
-		mapping:
-			*: IPubTests\Images\*Presenter
+application:
+	mapping:
+		*: IPubTests\Images\*Presenter
 
 services:
+	router: IPubTests\Images\RouterFactory::createRouter
+
 	# Test presenter
 	presenters.test:
 		class: IPubTests\Images\TestPresenter

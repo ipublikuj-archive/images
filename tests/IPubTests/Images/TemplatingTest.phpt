@@ -55,7 +55,7 @@ class TemplatingTest extends Tester\TestCase
 
 		Images\DI\ImagesExtension::register($config);
 
-		$config->addConfig(__DIR__ . '/files/config.neon', $config::NONE);
+		$config->addConfig(__DIR__ . '/files/config.neon');
 
 		return $config->createContainer();
 	}

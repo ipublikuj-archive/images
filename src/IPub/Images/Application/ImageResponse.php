@@ -12,6 +12,8 @@
  * @date           09.02.15
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images\Application;
 
 use Nette;
@@ -52,7 +54,7 @@ class ImageResponse extends Nette\Object implements Application\IResponse
 	 * @param string|NULL $mimeType
 	 * @param string|NULL $eTag
 	 */
-	public function __construct($filePath, $mimeType = NULL, $eTag = NULL)
+	public function __construct(string $filePath, string $mimeType = NULL, string $eTag = NULL)
 	{
 		$this->filePath = $filePath;
 		$this->mimeType = $mimeType;
@@ -62,13 +64,13 @@ class ImageResponse extends Nette\Object implements Application\IResponse
 	/**
 	 * @return string
 	 */
-	final public function getFilePath()
+	final public function getFilePath() : string
 	{
 		return $this->filePath;
 	}
 
 	/**
-	 * Sends response to output.
+	 * Sends response to output
 	 *
 	 * @param Http\IRequest $httpRequest
 	 * @param Http\IResponse $httpResponse
@@ -77,7 +79,7 @@ class ImageResponse extends Nette\Object implements Application\IResponse
 	{
 		$httpResponse->setExpiration(Http\IResponse::PERMANENT);
 
-		if (($inm = $httpRequest->getHeader('if-none-match')) && $inm == $this->eTag) {
+		if (($inm = $httpRequest->getHeader('if-none-match')) && $inm === $this->eTag) {
 			$httpResponse->setCode(Http\IResponse::S304_NOT_MODIFIED);
 
 			return;
@@ -86,6 +88,7 @@ class ImageResponse extends Nette\Object implements Application\IResponse
 		if ($this->mimeType !== NULL) {
 			$httpResponse->setContentType($this->mimeType);
 		}
+
 		$httpResponse->setHeader('Content-Transfer-Encoding', 'binary');
 		$httpResponse->setHeader('Content-Length', filesize($this->filePath));
 		$httpResponse->setHeader('Content-Disposition', 'attachment; filename="' . basename($this->filePath) . '"');

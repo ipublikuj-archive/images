@@ -12,6 +12,8 @@
  * @date           05.04.14
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images\DI;
 
 use Nette;
@@ -111,7 +113,7 @@ class ImagesExtension extends DI\CompilerExtension
 	}
 
 	/**
-	 * @inheritdoc
+	 * {@inheritdoc}
 	 */
 	public function beforeCompile()
 	{
@@ -147,14 +149,14 @@ class ImagesExtension extends DI\CompilerExtension
 			->addSetup('addFilter', ['isSquare', [$this->prefix('@helpers'), 'isSquare']])
 			->addSetup('addFilter', ['isHigher', [$this->prefix('@helpers'), 'isHigher']])
 			->addSetup('addFilter', ['isWider', [$this->prefix('@helpers'), 'isWider']])
-			->addSetup('addFilter', ['getImagesLoaderService', [$this->prefix('@helpers'), 'getImagesLoaderService']]);
+			->addSetup('addFilter', ['imageLink', [$this->prefix('@helpers'), 'imageLink']]);
 	}
 
 	/**
 	 * @param Nette\Configurator $configurator
 	 * @param string $extensionName
 	 */
-	public static function register(Nette\Configurator $configurator, $extensionName = 'images')
+	public static function register(Nette\Configurator $configurator, string $extensionName = 'images')
 	{
 		$configurator->onCompile[] = function (Nette\Configurator $configurator, Nette\DI\Compiler $compiler) use ($extensionName) {
 			$compiler->addExtension($extensionName, new ImagesExtension());
@@ -166,7 +168,7 @@ class ImagesExtension extends DI\CompilerExtension
 	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
-	private function registerRoutes($routes)
+	private function registerRoutes(array $routes = [])
 	{
 		// Get container builder
 		$builder = $this->getContainerBuilder();
@@ -222,12 +224,12 @@ class ImagesExtension extends DI\CompilerExtension
 	 *
 	 * @throws Utils\AssertionException
 	 */
-	private function registerRules($rules, DI\ServiceDefinition $validator)
+	private function registerRules(array $rules = [], DI\ServiceDefinition $validator)
 	{
 		foreach ($rules as $rule) {
 			// Check for valid rules values
-			Utils\Validators::assert($rule['width'], 'int', 'Rule width');
-			Utils\Validators::assert($rule['height'], 'int', 'Rule height');
+			Utils\Validators::assert($rule['width'], 'int|null', 'Rule width');
+			Utils\Validators::assert($rule['height'], 'int|null', 'Rule height');
 
 			$validator->addSetup('$service->addRule(?, ?, ?, ?)', [
 				$rule['width'],

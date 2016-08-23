@@ -27,8 +27,9 @@ use IPub\Images;
 use League\Flysystem;
 
 require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/RouterFactory.php';
 
-class TestCase extends Tester\TestCase
+abstract class TestCase extends Tester\TestCase
 {
 	/**
 	 * @var Nette\Application\IPresenterFactory
@@ -75,14 +76,14 @@ class TestCase extends Tester\TestCase
 		$config->setTempDirectory(TEMP_DIR);
 
 		$config->addParameters([
-			"wwwDir"   => realpath(__DIR__ . DIRECTORY_SEPARATOR . 'web'),
+			'wwwDir'   => realpath(__DIR__ . DIRECTORY_SEPARATOR . 'web'),
 			'mediaDir' => realpath(__DIR__ . DIRECTORY_SEPARATOR . 'media'),
 		]);
 
 		Images\DI\ImagesExtension::register($config);
 
-		$config->addConfig(__DIR__ . '/files/config.neon', $config::NONE);
-		$config->addConfig(__DIR__ . '/files/presenters.neon', $config::NONE);
+		$config->addConfig(__DIR__ . '/files/config.neon');
+		$config->addConfig(__DIR__ . '/files/presenters.neon');
 
 		return $config->createContainer();
 	}

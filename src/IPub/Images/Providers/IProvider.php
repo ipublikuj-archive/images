@@ -12,6 +12,8 @@
  * @date           12.05.16
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images\Providers;
 
 use IPub;
@@ -30,7 +32,7 @@ interface IProvider
 {
 	/**
 	 * @param string $storage
-	 * @param string $namespace
+	 * @param string|NULL $namespace
 	 * @param string $filename
 	 * @param string|NULL $size
 	 * @param string|NULL $algorithm
@@ -41,5 +43,5 @@ interface IProvider
 	 * @throws Exceptions\InvalidStateException
 	 * @throws Exceptions\FileNotFoundException
 	 */
-	public function request($storage, $namespace, $filename, $size = NULL, $algorithm = NULL);
+	public function request(string $storage, string $namespace = NULL, string $filename, string $size = NULL, string $algorithm = NULL) : string;
 }

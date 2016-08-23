@@ -12,6 +12,8 @@
  * @date           09.02.15
  */
 
+declare(strict_types = 1);
+
 namespace IPub\IPubModule;
 
 use Nette;
@@ -92,7 +94,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	 * @param Application\IRouter|NULL $router
 	 */
 	public function __construct(
-		$webDir,
+		string $webDir,
 		Images\ImagesLoader $imagesLoader,
 		Validators\Validator $validator,
 		Flysystem\MountManager $mountManager,
@@ -117,7 +119,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	 *
 	 * @throws Application\BadRequestException
 	 */
-	public function run(Application\Request $request)
+	public function run(Application\Request $request) : Application\IResponse
 	{
 		$this->request = $request;
 
@@ -133,45 +135,28 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 
 		$params = $request->getParameters();
 
-		if (!isset($params['storage'])) {
-			throw new Application\BadRequestException('Parameter storage is missing.');
-
-		} else {
-			$storage = $params['storage'];
-		}
-
-		if (!isset($params['filename'])) {
-			throw new Application\BadRequestException('Parameter filename is missing.');
-
-		} else {
-			$filename = $params['filename'];
-		}
-
-		if (!isset($params['extension'])) {
-			throw new Application\BadRequestException('Parameter extension is missing.');
-
-		} else {
-			$extension = $params['extension'];
-		}
-
-		$namespace = isset($params['namespace']) ? $params['namespace'] : NULL;
-		$size = isset($params['size']) ? $params['size'] : NULL;
-		$algorithm = isset($params['algorithm']) ? $params['algorithm'] : NULL;
+		// Parse parameters from storage
+		$storage = $this->getParameter($params, 'storage', TRUE);
+		$filename = $this->getParameter($params, 'filename', TRUE);
+		$extension = $this->getParameter($params, 'extension', TRUE);
+		$namespace = $this->getParameter($params, 'namespace');
+		$size = $this->getParameter($params, 'size');
+		$algorithm = $this->getParameter($params, 'algorithm');
 
 		$this->generateImage($storage, $namespace, $filename, $extension, $size, $algorithm);
 	}
 
 	/**
 	 * @param string $storage
-	 * @param string $namespace
+	 * @param string|NULL $namespace
 	 * @param string $filename
 	 * @param string $extension
-	 * @param string $size
-	 * @param string $algorithm
+	 * @param string|NULL $size
+	 * @param string|NULL $algorithm
 	 *
 	 * @throws Application\BadRequestException
 	 */
-	private function generateImage($storage, $namespace, $filename, $extension, $size, $algorithm)
+	private function generateImage(string $storage, string $namespace = NULL, string $filename, string $extension, string $size = NULL, string $algorithm = NULL)
 	{
 		try {
 			$fileSystem = $this->mountManager->getFilesystem($storage);
@@ -223,18 +208,18 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	/**
 	 * @param string $imageContent
 	 * @param string|NULL $mimeType
-	 * @param int $width
-	 * @param int $height
+	 * @param int|NULL $width
+	 * @param int|NULL $height
 	 * @param int $algorithm
 	 *
 	 * @throws Application\BadRequestException
 	 */
-	private function createImage($imageContent, $mimeType = NULL, $width, $height, $algorithm)
+	private function createImage(string $imageContent, string $mimeType = NULL, int $width = NULL, int $height = NULL, int $algorithm)
 	{
 		$destination = $this->webDir . $this->httpRequest->getUrl()->getPath();
 
 		// Check if file is allowed image type
-		if (in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif'])) {
+		if (in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif'], TRUE)) {
 			// ...& create image object
 			$image = Utils\Image::fromString($imageContent);
 
@@ -247,7 +232,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 			$success = $image->save($destination, 90);
 
 			if (!$success) {
-				throw new Application\BadRequestException('Image can\'t be save into destination web folder: "' . $destination . '"');
+				throw new Application\BadRequestException(sprintf('Image can\'t be save into destination web folder: "%s"', $destination));
 			}
 
 			$image->send();
@@ -259,8 +244,30 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 				(new Images\Application\ImageResponse($destination, $mimeType))->send($this->httpRequest, $this->httpResponse);
 
 			} catch (\Exception $ex) {
-				throw new Application\BadRequestException('Image can\'t be save into destination web folder: "' . $destination . '"');
+				throw new Application\BadRequestException(sprintf('Image can\'t be saved into destination web folder: "%s"', $destination));
 			}
 		}
+	}
+
+	/**
+	 * @param array $params
+	 * @param string $key
+	 * @param bool $required
+	 *
+	 * @return string|null
+	 *
+	 * @throws Application\BadRequestException
+	 */
+	private function getParameter(array $params, string $key, bool $required = FALSE)
+	{
+		if (!isset($params[$key])) {
+			if ($required) {
+				throw new Application\BadRequestException(sprintf('Parameter "%s" is missing.', $key));
+			}
+
+			return NULL;
+		}
+
+		return $params[$key];
 	}
 }

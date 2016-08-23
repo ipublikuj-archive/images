@@ -12,9 +12,14 @@
  * @date           11.02.15
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images\Validators;
 
 use Nette;
+
+use IPub;
+use IPub\Images\Exceptions;
 
 /**
  * Image validator interface
@@ -40,48 +45,58 @@ class Validator extends Nette\Object implements IValidator
 	/**
 	 * Adds rule
 	 *
-	 * @param int $width
-	 * @param int $height
+	 * @param int|NULL $width
+	 * @param int|NULL $height
 	 * @param int|string|NULL $algorithm
 	 * @param string|NULL $storage
+	 *
+	 * @throws Exceptions\InvalidArgumentException
 	 */
-	public function addRule($width, $height, $algorithm = NULL, $storage = NULL)
+	public function addRule(int $width = NULL, int $height = NULL, $algorithm = NULL, string $storage = NULL)
 	{
+		if ($width === NULL && $height === NULL) {
+			throw new Exceptions\InvalidArgumentException('Width or height have to be defined!');
+		}
+
 		$this->rules[] = [
-			'width'     => (int) $width,
-			'height'    => (int) $height,
+			'width'     => $width ? (int) $width : NULL,
+			'height'    => $height ? (int) $height : NULL,
 			'algorithm' => $algorithm === NULL ? NULL : (string) $algorithm,
-			'storage'   => $storage === NULL ? NULL : (string) $storage,
+			'storage'   => $storage === NULL ? NULL : $storage,
 		];
 	}
 
 	/**
 	 * Validates whether provided arguments match at least one rule
 	 *
-	 * @param int $width
-	 * @param int $height
+	 * @param int|NULL $width
+	 * @param int|NULL $height
 	 * @param int $algorithm
 	 * @param string|NULL $storage
 	 *
 	 * @return bool
 	 */
-	public function validate($width, $height, $algorithm = NULL, $storage = NULL)
+	public function validate(int $width = NULL, int $height = NULL, int $algorithm = NULL, string $storage = NULL) : bool
 	{
+		if (!count($this->rules)) {
+			return TRUE;
+		}
+
 		foreach ($this->rules as $rule) {
 			if ($rule['storage'] !== NULL && $rule['storage'] !== $storage) {
 				continue;
 			}
 
-			if (
-				(int) $width !== $rule['width']
-				|| (int) $height !== $rule['height']
-				|| ($rule['algorithm'] !== NULL && $rule['algorithm'] !== $algorithm)
-			) {
-				return FALSE;
+			if (($width === $rule['width'] || $rule['width'] === NULL) && ($height === $rule['height'] || $rule['height'] === NULL)) {
+				if ($rule['algorithm'] !== NULL && $rule['algorithm'] !== $algorithm) {
+					continue;
+				}
+
+				return TRUE;
 			}
 		}
 
-		return TRUE;
+		return FALSE;
 	}
 
 	/**
@@ -89,7 +104,7 @@ class Validator extends Nette\Object implements IValidator
 	 *
 	 * @return array[]
 	 */
-	public function getRules()
+	public function getRules() : array
 	{
 		return $this->rules;
 	}

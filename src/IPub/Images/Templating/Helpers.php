@@ -12,6 +12,8 @@
  * @date           05.04.14
  */
 
+declare(strict_types = 1);
+
 namespace IPub\Images\Templating;
 
 use Nette;
@@ -73,7 +75,7 @@ final class Helpers extends Nette\Object
 	 *
 	 * @return bool
 	 */
-	public function isSquare($file)
+	public function isSquare(string $file) : bool
 	{
 		$image = $this->fromString($file);
 
@@ -85,7 +87,7 @@ final class Helpers extends Nette\Object
 	 *
 	 * @return bool
 	 */
-	public function isHigher($file)
+	public function isHigher(string $file) : bool
 	{
 		$image = $this->fromString($file);
 
@@ -97,11 +99,23 @@ final class Helpers extends Nette\Object
 	 *
 	 * @return bool
 	 */
-	public function isWider($file)
+	public function isWider(string $file) : bool
 	{
 		$image = $this->fromString($file);
 
 		return $image->getWidth() > $image->getHeight();
+	}
+
+	/**
+	 * @param array $parameters
+	 *
+	 * @return string
+	 * 
+	 * @throws Exceptions\InvalidArgumentException
+	 */
+	public function imageLink(array $parameters) : string
+	{
+		return $this->imagesLoader->request($parameters);
 	}
 
 	/**
@@ -114,18 +128,17 @@ final class Helpers extends Nette\Object
 	 */
 	private function fromString($file)
 	{
-		// Extract info from file string
-		preg_match("/\b(?P<storage>[a-zA-Z]+)\:\/\/(?:(?<namespace>[a-zA-Z0-9\/-]+)\/)?(?<name>[a-zA-Z0-9-]+).(?P<extension>[a-zA-Z]{3}+)/i", $file, $matches);
+		$arguments = Images\Helpers\Converters::parseImageString($file);
 
 		$namespace = NULL;
 
-		if (isset($matches['namespace']) && trim($matches['namespace'])) {
-			$namespace = trim($matches['namespace']) . DIRECTORY_SEPARATOR;
+		if ($arguments['namespace']) {
+			$namespace = $arguments['namespace'] . DIRECTORY_SEPARATOR;
 		}
 
-		$filePath = $namespace . $matches['name'] . '.' . $matches['extension'];
+		$filePath = $namespace . $arguments['filename'];
 
-		if (isset($matches['storage']) && ($storage = $matches['storage'])) {
+		if (isset($arguments['storage']) && ($storage = $arguments['storage'])) {
 			try {
 				$fileSystem = $this->imagesLoader->getStorage($storage);
 
@@ -137,22 +150,14 @@ final class Helpers extends Nette\Object
 					return $image;
 
 				} catch (Flysystem\FileNotFoundException $ex) {
-					throw new Exceptions\FileNotFoundException('Image: "' . $filePath . '" in storage: "' . $storage . '" was not found.');
+					throw new Exceptions\FileNotFoundException(sprintf('Image: "%s" in storage: "%s" was not found.', $filePath, $storage));
 				}
 
 			} catch (\LogicException $ex) {
-				throw new Exceptions\InvalidStateException('Images storage: "' . $storage . '" for file: "'. $filePath .'" was not found.');
+				throw new Exceptions\InvalidStateException(sprintf('Images storage: "%s" for file: "%s" was not found.', $filePath, $storage));
 			}
 		}
 
 		throw new Exceptions\InvalidStateException('Images storage for file: "'. $filePath .'" was not found.');
-	}
-
-	/**
-	 * @return Images\ImagesLoader
-	 */
-	public function getImagesLoaderService()
-	{
-		return $this->imagesLoader;
 	}
 }
