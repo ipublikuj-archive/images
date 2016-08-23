@@ -59,27 +59,25 @@ class ImagesExtension extends DI\CompilerExtension
 		'wwwDir'                => NULL,
 	];
 
+	/**
+	 * @var bool
+	 */
+	private $isPresenterRegistered = FALSE;
+
 	public function loadConfiguration()
 	{
 		// Get container builder
 		$builder = $this->getContainerBuilder();
 		// Get extension configuration
-		$configuration = $this->getConfig($this->defaults);
+		$configuration = $this->getExtensionConfig();
 
 		// Check for valid values
-		Utils\Validators::assert($configuration['wwwDir'], 'string', 'Web public dir');
 		Utils\Validators::assert($configuration['providers'], 'array', 'Images providers');
 		Utils\Validators::assert($configuration['routes'], 'array', 'Images routes');
 
 		// Extension loader
 		$loader = $builder->addDefinition($this->prefix('loader'))
 			->setClass(Images\ImagesLoader::CLASS_NAME);
-
-		// Images presenter
-		$builder->addDefinition($this->prefix('presenter'))
-			->setClass(IPubModule\ImagesPresenter::CLASS_NAME, [
-				$configuration['wwwDir'],
-			]);
 
 		// Create default storage validator
 		$validator = $builder->addDefinition($this->prefix('validator.default'))
@@ -92,18 +90,13 @@ class ImagesExtension extends DI\CompilerExtension
 		}
 
 		foreach ($configuration['providers'] as $name => $provider) {
-			$this->compiler->parseServices($builder, [
-				'services' => [$this->prefix('providers.' . $name) => $provider],
-			]);
+			$this->compiler->loadDefinitions($builder, [$this->prefix('providers.' . $name) => $provider]);
 			$loader->addSetup('registerProvider', [$name, $this->prefix('@providers.' . $name)]);
-		}
 
-		// Update presenters mapping
-		$builder->getDefinition('nette.presenterFactory')
-			->addSetup('if (method_exists($service, ?)) { $service->setMapping([? => ?]); } '
-				. 'elseif (property_exists($service, ?)) { $service->mapping[?] = ?; }',
-				['setMapping', 'IPub', 'IPub\IPubModule\*\*Presenter', 'mapping', 'IPub', 'IPub\IPubModule\*\*Presenter']
-			);
+			if ($provider === Images\Providers\PresenterProvider::CLASS_NAME && !$this->isPresenterRegistered) {
+				$this->registerPresenter();
+			}
+		}
 
 		// Register template helpers
 		$builder->addDefinition($this->prefix('helpers'))
@@ -122,7 +115,7 @@ class ImagesExtension extends DI\CompilerExtension
 		// Get container builder
 		$builder = $this->getContainerBuilder();
 		// Get extension configuration
-		$configuration = $this->getConfig($this->defaults);
+		$configuration = $this->getExtensionConfig();
 
 		if ($configuration['prependRoutesToRouter']) {
 			$router = $builder->getByType('Nette\Application\IRouter');
@@ -164,6 +157,36 @@ class ImagesExtension extends DI\CompilerExtension
 	}
 
 	/**
+	 * @throws Utils\AssertionException
+	 */
+	private function registerPresenter()
+	{
+		// Get container builder
+		$builder = $this->getContainerBuilder();
+		// Get extension configuration
+		$configuration = $this->getExtensionConfig();
+
+		// For this provider wwwDir have to be defined
+		Utils\Validators::assert($configuration['wwwDir'], 'string', 'Web public dir');
+
+		// Images presenter
+		$builder->addDefinition($this->prefix('presenter'))
+			->setClass(IPubModule\ImagesPresenter::CLASS_NAME, [
+				$configuration['wwwDir'],
+			]);
+
+		// Update presenters mapping
+		$builder->getDefinition('nette.presenterFactory')
+			->addSetup('if (method_exists($service, ?)) { $service->setMapping([? => ?]); } '
+				. 'elseif (property_exists($service, ?)) { $service->mapping[?] = ?; }',
+				['setMapping', 'IPub', 'IPub\IPubModule\*\*Presenter', 'mapping', 'IPub', 'IPub\IPubModule\*\*Presenter']
+			);
+
+		// Presenter could be registered only once
+		$this->isPresenterRegistered = TRUE;
+	}
+
+	/**
 	 * @param array $routes
 	 *
 	 * @throws Exceptions\InvalidArgumentException
@@ -189,10 +212,6 @@ class ImagesExtension extends DI\CompilerExtension
 
 				if (array_key_exists('metadata', $attributes)) {
 					$metadata = $attributes['metadata'];
-				}
-
-				if (array_key_exists('secured', $attributes)) {
-					$flags = Nette\Application\Routers\Route::SECURED;
 				}
 
 			} elseif (is_int($mask) === TRUE) {
@@ -238,5 +257,13 @@ class ImagesExtension extends DI\CompilerExtension
 				isset($rule['storage']) ? $rule['storage'] : NULL,
 			]);
 		}
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getExtensionConfig()
+	{
+		return parent::getConfig($this->defaults);
 	}
 }

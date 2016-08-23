@@ -224,7 +224,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 			$image = Utils\Image::fromString($imageContent);
 
 			// Process image resizing etc.
-			if ($width || $height) {
+			if ($width !== NULL || $height !== NULL) {
 				$image->resize($width, $height, $algorithm);
 			}
 

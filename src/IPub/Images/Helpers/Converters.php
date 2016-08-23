@@ -18,7 +18,6 @@ namespace IPub\Images\Helpers;
 
 use Nette;
 use Nette\Utils;
-use Tracy\Debugger;
 
 /**
  * Attributes parsers

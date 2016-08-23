@@ -24,7 +24,6 @@ use Latte\Engine;
 use IPub;
 use IPub\Images;
 use IPub\Images\Exceptions;
-use IPub\Images\Image;
 
 use League\Flysystem;
 
