@@ -20,7 +20,13 @@ use Nette\Application\Routers;
 
 class RouterFactory
 {
-	use Nette\StaticClass;
+	/**
+	 * @throws \LogicException
+	 */
+	final public function __construct()
+	{
+		throw new \LogicException('Class ' . get_class($this) . ' is static and cannot be instantiated.');
+	}
 
 	/**
 	 * @return Nette\Application\IRouter

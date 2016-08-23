@@ -90,7 +90,15 @@ class ImagesExtension extends DI\CompilerExtension
 		}
 
 		foreach ($configuration['providers'] as $name => $provider) {
-			$this->compiler->loadDefinitions($builder, [$this->prefix('providers.' . $name) => $provider]);
+			if (method_exists($this->compiler, 'loadDefinitions')) {
+				$this->compiler->loadDefinitions($builder, [$this->prefix('providers.' . $name) => $provider]);
+
+			} else {
+				$this->compiler->parseServices($builder, [
+					'services' => [$this->prefix('providers.' . $name) => $provider],
+				]);
+			}
+
 			$loader->addSetup('registerProvider', [$name, $this->prefix('@providers.' . $name)]);
 
 			if ($provider === Images\Providers\PresenterProvider::CLASS_NAME && !$this->isPresenterRegistered) {
