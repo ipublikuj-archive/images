@@ -72,7 +72,9 @@ final class Macros extends MacroSet
 			return '"' . $key . '" => '. ($value ? '"' . $value . '"' : 'NULL');
 		}, array_values($arguments), array_keys($arguments)));
 
-		return $writer->write('echo %escape(call_user_func($this->filters->imageLink, array(' . $arguments . ')))');
+		return $writer->write('echo %escape(%modify(
+			call_user_func(($template && method_exists($template, "imageLink") ? $template->imageLink : $this->filters->imageLink), array(' . $arguments . '))
+		))');
 	}
 
 	/**
