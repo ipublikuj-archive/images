@@ -69,23 +69,22 @@ class Converters
 	public static function createSizeString($size)
 	{
 		if (empty($size) || $size === NULL) {
-			$size = 'original';
+			return 'original';
+		}
 
-		} elseif (strpos($size, 'x') !== FALSE) {
+		if (strpos($size, 'x') !== FALSE) {
 			list($width, $height) = explode('x', $size);
+
+			$size = (int) $width;
 
 			if ((int) $height > 0) {
 				$size = (int) $width . 'x' . (int) $height;
-
-			} else {
-				$size = (int) $width;
 			}
 
-		} else {
-			$size = (int) $size;
+			return $size;
 		}
 
-		return $size;
+		return (int) $size;
 	}
 
 	/**
@@ -96,9 +95,10 @@ class Converters
 	public static function parseAlgorithm($algorithm)
 	{
 		if (empty($algorithm) || $algorithm === NULL) {
-			$algorithm = NULL;
+			return NULL;
+		}
 
-		} elseif (!is_int($algorithm) && !is_array($algorithm)) {
+		if (!is_int($algorithm) && !is_array($algorithm)) {
 			switch (strtolower($algorithm)) {
 				case 'fit':
 					return Utils\Image::FIT;
@@ -121,16 +121,13 @@ class Converters
 					return NULL;
 			}
 
-		} elseif (is_int($algorithm)) {
-			if (!in_array($algorithm, [Utils\Image::FIT, Utils\Image::FILL, Utils\Image::EXACT, Utils\Image::SHRINK_ONLY, Utils\Image::STRETCH], TRUE)) {
-				return NULL;
-			}
-
-		} else {
-			return NULL;
 		}
 
-		return $algorithm;
+		if (is_int($algorithm) && in_array($algorithm, [Utils\Image::FIT, Utils\Image::FILL, Utils\Image::EXACT, Utils\Image::SHRINK_ONLY, Utils\Image::STRETCH], TRUE)) {
+			return $algorithm;
+		}
+
+		return NULL;
 	}
 
 	/**
@@ -162,14 +159,16 @@ class Converters
 				default:
 					return NULL;
 			}
+		}
 
-		} elseif (is_string($algorithm)) {
+		if (is_string($algorithm)) {
 			$algorithm = strtolower($algorithm);
 
 			if (in_array($algorithm, ['shrink_only', 'shrinkonly', 'shrink-only'], TRUE)) {
 				return 'shrink-only';
+			}
 
-			} elseif (!in_array($algorithm, ['fit', 'fill', 'exact', 'stretch'], TRUE)) {
+			if (!in_array($algorithm, ['fit', 'fill', 'exact', 'stretch'], TRUE)) {
 				return NULL;
 			}
 		}
