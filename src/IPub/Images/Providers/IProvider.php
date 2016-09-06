@@ -31,6 +31,16 @@ use IPub\Images\Exceptions;
 interface IProvider
 {
 	/**
+	 * Define interface name
+	 */
+	const INTERFACE_NAME = __CLASS__;
+
+	/**
+	 * @return string
+	 */
+	public function getName() : string;
+
+	/**
 	 * @param string $storage
 	 * @param string|NULL $namespace
 	 * @param string $filename

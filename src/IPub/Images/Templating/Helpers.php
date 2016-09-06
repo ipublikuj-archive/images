@@ -57,19 +57,6 @@ final class Helpers extends Nette\Object
 	}
 
 	/**
-	 * Register template filters
-	 *
-	 * @param Engine $engine
-	 */
-	public function register(Engine $engine)
-	{
-		$engine->addFilter('isSquare', [$this, 'isSquare']);
-		$engine->addFilter('isHigher', [$this, 'isHigher']);
-		$engine->addFilter('isWider', [$this, 'isWider']);
-		$engine->addFilter('getImagesLoader', [$this, 'getImagesLoader']);
-	}
-
-	/**
 	 * @param string $file
 	 *
 	 * @return bool

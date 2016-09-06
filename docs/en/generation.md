@@ -3,8 +3,14 @@
 Image url can be generated automatically by Latte macros in templates. But in some cases you want to generate image url in presenters or components.
 
 ```php
+namespace MyApp\Frontend;
+
+use IPub\Images\TImages;
+
 class YourPresenter extends BasePresenter
 {
+    use TImages;
+
     public function handleUpload(Nette\Http\FileUpload $file)
     {
         // Get images provider
@@ -18,7 +24,7 @@ class YourPresenter extends BasePresenter
 }
 ```
 
-In this step image is not generated yet, only link is generated. Image will be generated on first request by client.
+In this step, if you are using Presenter provider, image is not generated yet, only link is generated. Image will be generated on first request by client.
 
 ## Generating responsive images
 
@@ -27,12 +33,17 @@ For this you need use some external JS library, eg. [jQuery Picture](http://jque
 ```html
 <a n:src="'presenter:imageStorage://namespace/image.jpg'">
     <picture data-settings="[]">
-        <source n:src="'presenter:imageStorage://namespace/image.jpg', '768x'" >
-        <source n:src="'presenter:imageStorage://namespace/image.jpg', '1200x'" media="(min-width: 768px)">
-        <source n:src="'presenter:imageStorage://namespace/image.jpg'" media="(min-width: 768px)">
+        <source n:src="presenter:imageStorage://namespace/image.jpg, 768x" >
+        <source n:src="presenter:imageStorage://namespace/image.jpg, 1200x" media="(min-width: 768px)">
+        <source n:src="presenter:imageStorage://namespace/image.jpg" media="(min-width: 768px)">
         <noscript>
-            <img n:src="'presenter:imageStorage://namespace/image.jpg'">
+            <img n:src="presenter:imageStorage://namespace/image.jpg">
         </noscript>
     </picture>
 </a>
 ```
+
+## More
+
+- [Read more images providers](https://github.com/iPublikuj/images/blob/master/docs/en/providers.md)
+- [Read abou basic implementation](https://github.com/iPublikuj/images/blob/master/docs/en/index.md)

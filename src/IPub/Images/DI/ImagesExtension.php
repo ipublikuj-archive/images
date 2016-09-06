@@ -29,6 +29,7 @@ use IPub\Images\Templating;
 use IPub\Images\Validators;
 
 use IPub\IPubModule;
+use Tracy\Debugger;
 
 /**
  * Images extension container
@@ -51,18 +52,11 @@ class ImagesExtension extends DI\CompilerExtension
 	 */
 	private $defaults = [
 		'routes'                => [],
-		'providers' => [
-			'presenter' => Images\Providers\PresenterProvider::CLASS_NAME
-		],
+		'presenterProvider'     => TRUE,
 		'prependRoutesToRouter' => TRUE,
 		'rules'                 => [],
 		'wwwDir'                => NULL,
 	];
-
-	/**
-	 * @var bool
-	 */
-	private $isPresenterRegistered = FALSE;
 
 	public function loadConfiguration()
 	{
@@ -72,11 +66,11 @@ class ImagesExtension extends DI\CompilerExtension
 		$configuration = $this->getExtensionConfig();
 
 		// Check for valid values
-		Utils\Validators::assert($configuration['providers'], 'array', 'Images providers');
 		Utils\Validators::assert($configuration['routes'], 'array', 'Images routes');
+		Utils\Validators::assert($configuration['rules'], 'array', 'Images rules');
 
 		// Extension loader
-		$loader = $builder->addDefinition($this->prefix('loader'))
+		$builder->addDefinition($this->prefix('loader'))
 			->setClass(Images\ImagesLoader::CLASS_NAME);
 
 		// Create default storage validator
@@ -85,25 +79,12 @@ class ImagesExtension extends DI\CompilerExtension
 
 		$this->registerRules($configuration['rules'], $validator);
 
-		if ($configuration['routes']) {
-			$this->registerRoutes($configuration['routes']);
+		if ($configuration['presenterProvider'] === TRUE) {
+			$this->registerPresenter();
 		}
 
-		foreach ($configuration['providers'] as $name => $provider) {
-			if (method_exists($this->compiler, 'loadDefinitions')) {
-				$this->compiler->loadDefinitions($builder, [$this->prefix('providers.' . $name) => $provider]);
-
-			} else {
-				$this->compiler->parseServices($builder, [
-					'services' => [$this->prefix('providers.' . $name) => $provider],
-				]);
-			}
-
-			$loader->addSetup('registerProvider', [$name, $this->prefix('@providers.' . $name)]);
-
-			if ($provider === Images\Providers\PresenterProvider::CLASS_NAME && !$this->isPresenterRegistered) {
-				$this->registerPresenter();
-			}
+		if ($configuration['routes']) {
+			$this->registerRoutes($configuration['routes']);
 		}
 
 		// Register template helpers
@@ -138,8 +119,17 @@ class ImagesExtension extends DI\CompilerExtension
 			}
 
 			foreach (array_keys($builder->findByTag(self::TAG_IMAGES_ROUTES)) as $service) {
-				$router->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', ['@'. $service]);
+				$router->addSetup('IPub\Images\Application\Route::prependTo($service, ?)', ['@' . $service]);
 			}
+		}
+
+		// Get images loader service
+		$loader = $builder->getDefinition($builder->getByType(Images\ImagesLoader::CLASS_NAME));
+
+		// Get all registered providers
+		foreach ($builder->findByType(Images\Providers\IProvider::INTERFACE_NAME) as $service) {
+			// Register all images providers which are now allowed
+			$loader->addSetup('$service->registerProvider(?->getName(), ?)', [$service, $service]);
 		}
 
 		// Install extension latte macros
@@ -175,7 +165,12 @@ class ImagesExtension extends DI\CompilerExtension
 		$configuration = $this->getExtensionConfig();
 
 		// For this provider wwwDir have to be defined
+		Utils\Validators::assert($configuration['routes'], 'array:1..', 'Images routes');
 		Utils\Validators::assert($configuration['wwwDir'], 'string', 'Web public dir');
+
+		// Presenter provider
+		$builder->addDefinition($this->prefix('providers.presenter'))
+			->setClass(Images\Providers\PresenterProvider::CLASS_NAME);
 
 		// Images presenter
 		$builder->addDefinition($this->prefix('presenter'))
@@ -189,9 +184,6 @@ class ImagesExtension extends DI\CompilerExtension
 				. 'elseif (property_exists($service, ?)) { $service->mapping[?] = ?; }',
 				['setMapping', 'IPub', 'IPub\IPubModule\*\*Presenter', 'mapping', 'IPub', 'IPub\IPubModule\*\*Presenter']
 			);
-
-		// Presenter could be registered only once
-		$this->isPresenterRegistered = TRUE;
 	}
 
 	/**

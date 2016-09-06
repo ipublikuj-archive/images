@@ -122,7 +122,7 @@ final class ImagesLoader extends Nette\Object
 			return $this->providers[$name];
 		}
 
-		throw new Exceptions\InvalidArgumentException(sprintf('Image provider "%s" is not registered.', $name));
+		throw new Exceptions\InvalidArgumentException(sprintf('Images provider "%s" is not registered.', $name));
 	}
 
 	/**

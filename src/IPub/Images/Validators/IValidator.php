@@ -27,6 +27,11 @@ namespace IPub\Images\Validators;
 interface IValidator
 {
 	/**
+	 * Define interface name
+	 */
+	const INTERFACE_NAME = __CLASS__;
+
+	/**
 	 * @param int $width
 	 * @param int $height
 	 * @param int $algorithm

@@ -76,6 +76,14 @@ class PresenterProvider extends Nette\Object implements IProvider
 	/**
 	 * {@inheritdoc}
 	 */
+	public function getName() : string
+	{
+		return 'presenter';
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
 	public function request(string $storage, string $namespace = NULL, string $filename, string $size = NULL, string $algorithm = NULL) : string
 	{
 		try {
