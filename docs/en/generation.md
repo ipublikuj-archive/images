@@ -45,5 +45,5 @@ For this you need use some external JS library, eg. [jQuery Picture](http://jque
 
 ## More
 
-- [Read more images providers](https://github.com/iPublikuj/images/blob/master/docs/en/providers.md)
-- [Read abou basic implementation](https://github.com/iPublikuj/images/blob/master/docs/en/index.md)
+- [Read more about images providers](https://github.com/iPublikuj/images/blob/master/docs/en/providers.md)
+- [Read about basic implementation](https://github.com/iPublikuj/images/blob/master/docs/en/index.md)

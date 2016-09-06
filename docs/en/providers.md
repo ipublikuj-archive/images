@@ -45,4 +45,4 @@ Method `getName` should return string without whitespaces, special chars etc. be
 ## More
 
 - [Read more about images generation](https://github.com/iPublikuj/images/blob/master/docs/en/generation.md)
-- [Read abou basic implementation](https://github.com/iPublikuj/images/blob/master/docs/en/index.md)
+- [Read about basic implementation](https://github.com/iPublikuj/images/blob/master/docs/en/index.md)

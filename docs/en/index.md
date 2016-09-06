@@ -89,5 +89,5 @@ For resizing (third argument) you can use these keywords - `fit`, `fill`, `exact
 
 ## More
 
-- [Read more images providers](https://github.com/iPublikuj/images/blob/master/docs/en/providers.md)
+- [Read more about images providers](https://github.com/iPublikuj/images/blob/master/docs/en/providers.md)
 - [Read more about images generation](https://github.com/iPublikuj/images/blob/master/docs/en/generation.md)
