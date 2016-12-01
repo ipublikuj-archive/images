@@ -64,7 +64,7 @@ class Converters
 	 *
 	 * @param string|int|NULL $size
 	 *
-	 * @return int|string
+	 * @return string
 	 */
 	public static function createSizeString($size)
 	{
@@ -81,10 +81,10 @@ class Converters
 				$size = (int) $width . 'x' . (int) $height;
 			}
 
-			return $size;
+			return (string) $size;
 		}
 
-		return (int) $size;
+		return (string) $size;
 	}
 
 	/**
