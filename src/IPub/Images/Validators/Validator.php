@@ -27,7 +27,7 @@ use IPub\Images\Exceptions;
  * @package        iPublikuj:Images!
  * @subpackage     Validators
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  * @inspiredBy     dotBlue <http://dotblue.net>
  */
 class Validator extends Nette\Object implements IValidator

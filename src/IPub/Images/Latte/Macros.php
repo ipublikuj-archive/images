@@ -34,7 +34,7 @@ use IPub\Images\Helpers;
  * @package        iPublikuj:Images!
  * @subpackage     Latte
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
 final class Macros extends MacroSet
 {

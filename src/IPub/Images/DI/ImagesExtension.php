@@ -37,7 +37,7 @@ use Tracy\Debugger;
  * @package        iPublikuj:Images!
  * @subpackage     DI
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
 class ImagesExtension extends DI\CompilerExtension
 {

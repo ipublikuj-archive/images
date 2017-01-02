@@ -26,7 +26,7 @@ use IPub\Images\Exceptions;
  * @package        iPublikuj:Images!
  * @subpackage     Providers
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
 interface IProvider
 {

@@ -34,7 +34,7 @@ use League\Flysystem;
  * @package        iPublikuj:Images!
  * @subpackage     common
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
 final class ImagesLoader extends Nette\Object
 {

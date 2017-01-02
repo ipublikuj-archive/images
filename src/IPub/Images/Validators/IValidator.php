@@ -22,7 +22,7 @@ namespace IPub\Images\Validators;
  * @package        iPublikuj:Images!
  * @subpackage     Validators
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
 interface IValidator
 {

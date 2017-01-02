@@ -33,7 +33,7 @@ use League\Flysystem;
  * @package        iPublikuj:Images!
  * @subpackage     Templating
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
 final class Helpers extends Nette\Object
 {

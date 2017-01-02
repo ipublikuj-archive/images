@@ -25,7 +25,7 @@ use Nette\Utils;
  * @package        iPublikuj:Images!
  * @subpackage     Helpers
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
 class Converters
 {

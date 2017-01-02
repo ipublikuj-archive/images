@@ -30,7 +30,7 @@ use IPub\Images;
  * @package        iPublikuj:Images!
  * @subpackage     Application
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
 class ImageResponse extends Nette\Object implements Application\IResponse
 {

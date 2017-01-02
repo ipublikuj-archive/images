@@ -34,7 +34,7 @@ use League\Flysystem;
  * @package        iPublikuj:Images!
  * @subpackage     Providers
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
 class PresenterProvider extends Nette\Object implements IProvider
 {

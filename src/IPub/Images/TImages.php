@@ -27,7 +27,7 @@ use IPub\Images\Templating;
  * @package        iPublikuj:Images!
  * @subpackage     common
  *
- * @author         Adam Kadlec <adam.kadlec@fastybird.com>
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
 trait TImages
 {
