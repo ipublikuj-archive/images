@@ -36,8 +36,10 @@ use League\Flysystem;
  *
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
-final class ImagesLoader extends Nette\Object
+final class ImagesLoader
 {
+  use Nette\SmartObject;
+  
 	/**
 	 * Define class name
 	 */
@@ -66,7 +68,7 @@ final class ImagesLoader extends Nette\Object
 	 * @param array $arguments
 	 *
 	 * @return string
-	 * 
+	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
 	public function request(array $arguments) : string
@@ -113,7 +115,7 @@ final class ImagesLoader extends Nette\Object
 	 * @param string $name
 	 *
 	 * @return Providers\IProvider
-	 * 
+	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
 	public function getProvider(string $name) : Providers\IProvider

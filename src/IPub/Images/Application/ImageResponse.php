@@ -32,8 +32,10 @@ use IPub\Images;
  *
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
-class ImageResponse extends Nette\Object implements Application\IResponse
+class ImageResponse implements Application\IResponse
 {
+  use Nette\SmartObject;
+
 	/**
 	 * @var string
 	 */

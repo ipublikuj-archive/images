@@ -35,8 +35,10 @@ use League\Flysystem;
  *
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
-final class Helpers extends Nette\Object
+final class Helpers
 {
+  use Nette\SmartObject;
+
 	/**
 	 * Define class name
 	 */
@@ -96,7 +98,7 @@ final class Helpers extends Nette\Object
 	 * @param array $parameters
 	 *
 	 * @return string
-	 * 
+	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
 	public function imageLink(array $parameters) : string

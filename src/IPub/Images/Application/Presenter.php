@@ -37,8 +37,10 @@ use League\Flysystem;
  *
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
-class ImagesPresenter extends Nette\Object implements Application\IPresenter
+class ImagesPresenter implements Application\IPresenter
 {
+  use Nette\SmartObject;
+
 	/**
 	 * Define class name
 	 */

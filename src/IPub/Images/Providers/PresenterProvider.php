@@ -36,8 +36,10 @@ use League\Flysystem;
  *
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
-class PresenterProvider extends Nette\Object implements IProvider
+class PresenterProvider implements IProvider
 {
+  use Nette\SmartObject;
+
 	/**
 	 * Define class name
 	 */
