@@ -13,6 +13,8 @@
  * @date           12.05.15
  */
 
+declare(strict_types = 1);
+
 namespace IPubTests\Images;
 
 use Nette;
@@ -20,7 +22,6 @@ use Nette;
 use Tester;
 use Tester\Assert;
 
-use IPub;
 use IPub\Images;
 use IPub\Images\Providers;
 
@@ -30,7 +31,7 @@ require_once __DIR__ . '/TestCase.php';
 
 class PresenterProviderTest extends TestCase
 {
-	public function testRegisteringProviders()
+	public function testRegisteringProviders() : void
 	{
 		$provider = $this->container->getService('images.providers.presenter');
 
@@ -39,11 +40,11 @@ class PresenterProviderTest extends TestCase
 		/** @var Images\ImagesLoader $loader */
 		$loader = $this->container->getService('images.loader');
 
-		Assert::true($loader instanceof IPub\Images\ImagesLoader);
+		Assert::true($loader instanceof Images\ImagesLoader);
 		Assert::true($loader->getProvider('presenter') instanceof Providers\PresenterProvider);
 	}
 
-	public function testPresenterProvider()
+	public function testPresenterProvider() : void
 	{
 		/** @var Images\ImagesLoader $loader */
 		$loader = $this->container->getService('images.loader');

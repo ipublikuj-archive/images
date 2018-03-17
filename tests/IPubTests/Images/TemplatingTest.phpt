@@ -13,6 +13,8 @@
  * @date           13.05.16
  */
 
+declare(strict_types = 1);
+
 namespace IPubTests\Images;
 
 use Nette;
@@ -20,7 +22,6 @@ use Nette;
 use Tester;
 use Tester\Assert;
 
-use IPub;
 use IPub\Images;
 use IPub\Images\Templating;
 
@@ -28,7 +29,7 @@ require __DIR__ . '/../bootstrap.php';
 
 class TemplatingTest extends Tester\TestCase
 {
-	public function testTemplateHelpers()
+	public function testTemplateHelpers() : void
 	{
 		$dic = $this->createContainer();
 
@@ -43,7 +44,7 @@ class TemplatingTest extends Tester\TestCase
 	/**
 	 * @return Nette\DI\Container
 	 */
-	protected function createContainer()
+	protected function createContainer() : Nette\DI\Container
 	{
 		$config = new Nette\Configurator();
 		$config->setTempDirectory(TEMP_DIR);

@@ -21,7 +21,6 @@ use Nette\DI;
 use Nette\Utils;
 use Nette\PhpGenerator as Code;
 
-use IPub;
 use IPub\Images;
 use IPub\Images\Application;
 use IPub\Images\Exceptions;
@@ -58,7 +57,7 @@ class ImagesExtension extends DI\CompilerExtension
 		'wwwDir'                => NULL,
 	];
 
-	public function loadConfiguration()
+	public function loadConfiguration() : void
 	{
 		// Get container builder
 		$builder = $this->getContainerBuilder();
@@ -71,11 +70,11 @@ class ImagesExtension extends DI\CompilerExtension
 
 		// Extension loader
 		$builder->addDefinition($this->prefix('loader'))
-			->setClass(Images\ImagesLoader::CLASS_NAME);
+			->setType(Images\ImagesLoader::class);
 
 		// Create default storage validator
 		$validator = $builder->addDefinition($this->prefix('validator.default'))
-			->setClass(Validators\Validator::CLASS_NAME);
+			->setType(Validators\Validator::class);
 
 		$this->registerRules($configuration['rules'], $validator);
 
@@ -89,7 +88,7 @@ class ImagesExtension extends DI\CompilerExtension
 
 		// Register template helpers
 		$builder->addDefinition($this->prefix('helpers'))
-			->setClass(Templating\Helpers::CLASS_NAME)
+			->setType(Templating\Helpers::class)
 			->setFactory($this->prefix('@loader') . '::createTemplateHelpers')
 			->setInject(FALSE);
 	}
@@ -97,7 +96,7 @@ class ImagesExtension extends DI\CompilerExtension
 	/**
 	 * {@inheritdoc}
 	 */
-	public function beforeCompile()
+	public function beforeCompile() : void
 	{
 		parent::beforeCompile();
 
@@ -124,10 +123,10 @@ class ImagesExtension extends DI\CompilerExtension
 		}
 
 		// Get images loader service
-		$loader = $builder->getDefinition($builder->getByType(Images\ImagesLoader::CLASS_NAME));
+		$loader = $builder->getDefinition($builder->getByType(Images\ImagesLoader::class));
 
 		// Get all registered providers
-		foreach ($builder->findByType(Images\Providers\IProvider::INTERFACE_NAME) as $service) {
+		foreach ($builder->findByType(Images\Providers\IProvider::class) as $service) {
 			// Register all images providers which are now allowed
 			$loader->addSetup('$service->registerProvider(?->getName(), ?)', [$service, $service]);
 		}
@@ -147,7 +146,7 @@ class ImagesExtension extends DI\CompilerExtension
 	 * @param Nette\Configurator $configurator
 	 * @param string $extensionName
 	 */
-	public static function register(Nette\Configurator $configurator, string $extensionName = 'images')
+	public static function register(Nette\Configurator $configurator, string $extensionName = 'images') : void
 	{
 		$configurator->onCompile[] = function (Nette\Configurator $configurator, Nette\DI\Compiler $compiler) use ($extensionName) {
 			$compiler->addExtension($extensionName, new ImagesExtension());
@@ -155,9 +154,11 @@ class ImagesExtension extends DI\CompilerExtension
 	}
 
 	/**
+	 * @return void
+	 *
 	 * @throws Utils\AssertionException
 	 */
-	private function registerPresenter()
+	private function registerPresenter() : void
 	{
 		// Get container builder
 		$builder = $this->getContainerBuilder();
@@ -170,11 +171,11 @@ class ImagesExtension extends DI\CompilerExtension
 
 		// Presenter provider
 		$builder->addDefinition($this->prefix('providers.presenter'))
-			->setClass(Images\Providers\PresenterProvider::CLASS_NAME);
+			->setType(Images\Providers\PresenterProvider::class);
 
 		// Images presenter
 		$builder->addDefinition($this->prefix('presenter'))
-			->setClass(IPubModule\ImagesPresenter::CLASS_NAME, [
+			->setType(IPubModule\ImagesPresenter::class, [
 				$configuration['wwwDir'],
 			]);
 
@@ -189,15 +190,17 @@ class ImagesExtension extends DI\CompilerExtension
 	/**
 	 * @param array $routes
 	 *
+	 * @return void
+	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
-	private function registerRoutes(array $routes = [])
+	private function registerRoutes(array $routes = []) : void
 	{
 		// Get container builder
 		$builder = $this->getContainerBuilder();
 
 		$router = $builder->addDefinition($this->prefix('router'))
-			->setClass('Nette\Application\Routers\RouteList')
+			->setType('Nette\Application\Routers\RouteList')
 			->addTag($this->prefix('routeList'))
 			->setAutowired(FALSE);
 
@@ -223,7 +226,7 @@ class ImagesExtension extends DI\CompilerExtension
 			}
 
 			$builder->addDefinition($this->prefix('route.' . $i))
-				->setClass(Application\Route::CLASS_NAME, [$mask, $metadata, $flags])
+				->setType(Application\Route::class, [$mask, $metadata, $flags])
 				->setAutowired(FALSE)
 				->addTag(self::TAG_IMAGES_ROUTES)
 				->setInject(FALSE);
@@ -241,9 +244,11 @@ class ImagesExtension extends DI\CompilerExtension
 	 * @param array $rules
 	 * @param DI\ServiceDefinition $validator
 	 *
+	 * @return void
+	 *
 	 * @throws Utils\AssertionException
 	 */
-	private function registerRules(array $rules = [], DI\ServiceDefinition $validator)
+	private function registerRules(array $rules = [], DI\ServiceDefinition $validator) : void
 	{
 		foreach ($rules as $rule) {
 			// Check for valid rules values
@@ -262,7 +267,7 @@ class ImagesExtension extends DI\CompilerExtension
 	/**
 	 * @return array
 	 */
-	private function getExtensionConfig()
+	private function getExtensionConfig() : array
 	{
 		return $this->getConfig($this->defaults);
 	}

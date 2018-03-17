@@ -13,6 +13,8 @@
  * @date           28.02.15
  */
 
+declare(strict_types = 1);
+
 namespace IPubTests\Images;
 
 use Nette;
@@ -20,20 +22,19 @@ use Nette;
 use Tester;
 use Tester\Assert;
 
-use IPub;
 use IPub\Images;
 
 require __DIR__ . '/../bootstrap.php';
 
 class ExtensionTest extends Tester\TestCase
 {
-	public function testCompilersServices()
+	public function testCompilersServices() : void
 	{
 		$dic = $this->createContainer();
 
-		Assert::true($dic->getService('images.loader') instanceof IPub\Images\ImagesLoader);
+		Assert::true($dic->getService('images.loader') instanceof Images\ImagesLoader);
 		Assert::true($dic->getService('images.providers.presenter') instanceof Images\Providers\PresenterProvider);
-		Assert::true($dic->getService('images.validator.default') instanceof IPub\Images\Validators\Validator);
+		Assert::true($dic->getService('images.validator.default') instanceof Images\Validators\Validator);
 	}
 
 	/**

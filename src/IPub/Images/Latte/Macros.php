@@ -104,8 +104,10 @@ final class Macros extends MacroSet
 	/**
 	 * @param string $name
 	 * @param Macros $macros
+	 *
+	 * @return void
 	 */
-	private static function registerMacro(string $name, Macros $macros)
+	private static function registerMacro(string $name, Macros $macros) : void
 	{
 		$macros->addMacro($name, function (MacroNode $node, PhpWriter $writer) use ($macros) {
 			return $macros->macroSrc($node, $writer);

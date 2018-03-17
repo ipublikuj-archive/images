@@ -12,11 +12,12 @@
  * @date           10.08.16
  */
 
+declare(strict_types = 1);
+
 namespace IPubTests\Images;
 
 use Nette;
 use Nette\Application\Routers;
-
 
 class RouterFactory
 {
@@ -31,7 +32,7 @@ class RouterFactory
 	/**
 	 * @return Nette\Application\IRouter
 	 */
-	public static function createRouter()
+	public static function createRouter() : Nette\Application\IRouter
 	{
 		$router = new Routers\RouteList;
 

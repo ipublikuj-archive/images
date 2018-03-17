@@ -21,7 +21,6 @@ use Nette\Utils;
 
 use Latte\Engine;
 
-use IPub;
 use IPub\Images;
 use IPub\Images\Exceptions;
 
@@ -35,12 +34,12 @@ use League\Flysystem;
  *
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
-final class Helpers extends Nette\Object
+final class Helpers
 {
 	/**
-	 * Define class name
+	 * Implement nette smart magic
 	 */
-	const CLASS_NAME = __CLASS__;
+	use Nette\SmartObject;
 
 	/**
 	 * @var Images\ImagesLoader
@@ -112,7 +111,7 @@ final class Helpers extends Nette\Object
 	 * @throws Exceptions\InvalidArgumentException
 	 * @throws Exceptions\InvalidStateException
 	 */
-	private function fromString($file)
+	private function fromString($file) : Utils\Image
 	{
 		$arguments = Images\Helpers\Converters::parseImageString($file);
 

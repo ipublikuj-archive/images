@@ -6,7 +6,6 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/ipub/images.svg?style=flat-square)](https://packagist.org/packages/ipub/images)
 [![Composer Downloads](https://img.shields.io/packagist/dt/ipub/images.svg?style=flat-square)](https://packagist.org/packages/ipub/images)
 [![License](https://img.shields.io/packagist/l/ipub/images.svg?style=flat-square)](https://packagist.org/packages/ipub/images)
-[![Dependency Status](https://img.shields.io/versioneye/d/user/projects/56facf9135630e003e0a8beb.svg?style=flat-square)](https://www.versioneye.com/user/projects/56facf9135630e003e0a8beb)
 
 Image storage & generator for [Nette Framework](http://nette.org/)
 

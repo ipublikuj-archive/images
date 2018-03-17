@@ -13,6 +13,8 @@
  * @date           28.02.15
  */
 
+declare(strict_types = 1);
+
 namespace IPubTests\Images;
 
 use Nette;
@@ -22,7 +24,6 @@ use Nette\Application\UI;
 use Tester;
 use Tester\Assert;
 
-use IPub;
 use IPub\Images;
 
 use League\Flysystem;
@@ -31,7 +32,7 @@ require_once __DIR__ . '/TestCase.php';
 
 class PresenterTest extends TestCase
 {
-	public function testRendering()
+	public function testRendering() : void
 	{
 		// Create test presenter
 		$presenter = $this->createPresenter();

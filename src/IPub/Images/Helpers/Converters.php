@@ -16,7 +16,6 @@ declare(strict_types = 1);
 
 namespace IPub\Images\Helpers;
 
-use Nette;
 use Nette\Utils;
 
 /**
@@ -66,7 +65,7 @@ class Converters
 	 *
 	 * @return string
 	 */
-	public static function createSizeString($size)
+	public static function createSizeString($size) : string
 	{
 		if (empty($size) || $size === NULL) {
 			return 'original';
@@ -92,7 +91,7 @@ class Converters
 	 *
 	 * @return int|NULL
 	 */
-	public static function parseAlgorithm($algorithm)
+	public static function parseAlgorithm($algorithm) : ?int
 	{
 		if (empty($algorithm) || $algorithm === NULL) {
 			return NULL;
@@ -137,7 +136,7 @@ class Converters
 	 *
 	 * @return string|NULL
 	 */
-	public static function createAlgorithmString($algorithm)
+	public static function createAlgorithmString($algorithm) : ?string
 	{
 		if (is_numeric($algorithm)) {
 			switch ($algorithm) {

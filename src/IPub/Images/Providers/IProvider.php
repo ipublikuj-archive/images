@@ -16,8 +16,6 @@ declare(strict_types = 1);
 
 namespace IPub\Images\Providers;
 
-use IPub;
-use IPub\Images;
 use IPub\Images\Exceptions;
 
 /**
@@ -30,11 +28,6 @@ use IPub\Images\Exceptions;
  */
 interface IProvider
 {
-	/**
-	 * Define interface name
-	 */
-	const INTERFACE_NAME = __CLASS__;
-
 	/**
 	 * @return string
 	 */
@@ -53,5 +46,5 @@ interface IProvider
 	 * @throws Exceptions\InvalidStateException
 	 * @throws Exceptions\FileNotFoundException
 	 */
-	public function request(string $storage, string $namespace = NULL, string $filename, string $size = NULL, string $algorithm = NULL) : string;
+	public function request(string $storage, ?string $namespace = NULL, string $filename, ?string $size = NULL, ?string $algorithm = NULL) : string;
 }

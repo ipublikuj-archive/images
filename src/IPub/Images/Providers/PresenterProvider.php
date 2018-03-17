@@ -20,7 +20,6 @@ use Nette;
 use Nette\Application;
 use Nette\Utils;
 
-use IPub;
 use IPub\Images;
 use IPub\Images\Exceptions;
 use IPub\Images\Helpers;
@@ -36,12 +35,12 @@ use League\Flysystem;
  *
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
-class PresenterProvider extends Nette\Object implements IProvider
+class PresenterProvider implements IProvider
 {
 	/**
-	 * Define class name
+	 * Implement nette smart magic
 	 */
-	const CLASS_NAME = __CLASS__;
+	use Nette\SmartObject;
 
 	/**
 	 * @var Validators\Validator

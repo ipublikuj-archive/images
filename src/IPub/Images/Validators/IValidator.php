@@ -27,16 +27,11 @@ namespace IPub\Images\Validators;
 interface IValidator
 {
 	/**
-	 * Define interface name
-	 */
-	const INTERFACE_NAME = __CLASS__;
-
-	/**
-	 * @param int $width
-	 * @param int $height
-	 * @param int $algorithm
+	 * @param int|NULL $width
+	 * @param int|NULL $height
+	 * @param int|NULL $algorithm
 	 *
 	 * @return bool
 	 */
-	public function validate(int $width, int $height, int $algorithm) : bool;
+	public function validate(?int $width, ?int $height, ?int $algorithm) : bool;
 }

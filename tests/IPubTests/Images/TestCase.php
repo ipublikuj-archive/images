@@ -13,6 +13,8 @@
  * @date           28.02.15
  */
 
+declare(strict_types = 1);
+
 namespace IPubTests\Images;
 
 use Nette;
@@ -21,7 +23,6 @@ use Nette\Application\UI;
 
 use Tester;
 
-use IPub;
 use IPub\Images;
 
 use League\Flysystem;
@@ -44,20 +45,20 @@ abstract class TestCase extends Tester\TestCase
 	/**
 	 * Set up
 	 */
-	public function setUp()
+	public function setUp() : void
 	{
 		parent::setUp();
 
 		$this->container = $this->createContainer();
 
 		// Get presenter factory from container
-		$this->presenterFactory = $this->container->getByType('Nette\Application\IPresenterFactory');
+		$this->presenterFactory = $this->container->getByType(Nette\Application\IPresenterFactory::class);
 	}
 
 	/**
 	 * @return Application\IPresenter
 	 */
-	protected function createPresenter()
+	protected function createPresenter() : Application\IPresenter
 	{
 		// Create test presenter
 		$presenter = $this->presenterFactory->createPresenter('Test');
@@ -70,7 +71,7 @@ abstract class TestCase extends Tester\TestCase
 	/**
 	 * @return Nette\DI\Container
 	 */
-	protected function createContainer()
+	protected function createContainer() : Nette\DI\Container
 	{
 		$config = new Nette\Configurator();
 		$config->setTempDirectory(TEMP_DIR);
@@ -93,7 +94,7 @@ class TestPresenter extends UI\Presenter
 {
 	use Images\TImages;
 
-	public function renderDefault()
+	public function renderDefault() : void
 	{
 		// Set template for component testing
 		$this->template->setFile(__DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'default.latte');

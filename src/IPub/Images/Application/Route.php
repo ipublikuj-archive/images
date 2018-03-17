@@ -16,11 +16,9 @@ declare(strict_types = 1);
 
 namespace IPub\Images\Application;
 
-use Nette;
 use Nette\Application;
 use Nette\Utils;
 
-use IPub;
 use IPub\Images;
 
 /**
@@ -33,11 +31,6 @@ use IPub\Images;
  */
 class Route extends Application\Routers\Route
 {
-	/**
-	 * Define class name
-	 */
-	const CLASS_NAME = __CLASS__;
-
 	/**
 	 * @param string $mask
 	 * @param array $metadata
@@ -55,9 +48,11 @@ class Route extends Application\Routers\Route
 	 * @param Application\IRouter $router
 	 * @param Route $extensionRoute
 	 *
+	 * @return void
+	 *
 	 * @throws Utils\AssertionException
 	 */
-	public static function prependTo(Application\IRouter &$router, self $extensionRoute)
+	public static function prependTo(Application\IRouter &$router, self $extensionRoute) : void
 	{
 		if (!$router instanceof Application\Routers\RouteList) {
 			throw new Utils\AssertionException(

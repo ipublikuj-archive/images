@@ -16,9 +16,6 @@ declare(strict_types = 1);
 
 namespace IPub\Images;
 
-use Nette;
-
-use IPub;
 use IPub\Images\Templating;
 
 /**
@@ -48,7 +45,7 @@ trait TImages
 	public function injectImages(
 		ImagesLoader $imagesLoader,
 		Templating\Helpers $imagesHelpers
-	) {
+	) : void {
 		$this->imagesLoader = $imagesLoader;
 		$this->imgHelpers = $imagesHelpers;
 	}

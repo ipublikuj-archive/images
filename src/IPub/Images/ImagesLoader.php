@@ -36,12 +36,12 @@ use League\Flysystem;
  *
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
-final class ImagesLoader extends Nette\Object
+final class ImagesLoader
 {
 	/**
-	 * Define class name
+	 * Implement nette smart magic
 	 */
-	const CLASS_NAME = __CLASS__;
+	use Nette\SmartObject;
 
 	/**
 	 * @var Providers\IProvider[]
@@ -66,7 +66,7 @@ final class ImagesLoader extends Nette\Object
 	 * @param array $arguments
 	 *
 	 * @return string
-	 * 
+	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
 	public function request(array $arguments) : string
@@ -113,7 +113,7 @@ final class ImagesLoader extends Nette\Object
 	 * @param string $name
 	 *
 	 * @return Providers\IProvider
-	 * 
+	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
 	public function getProvider(string $name) : Providers\IProvider
@@ -128,8 +128,10 @@ final class ImagesLoader extends Nette\Object
 	/**
 	 * @param string $name
 	 * @param Providers\IProvider $provider
+	 *
+	 * @return void
 	 */
-	public function registerProvider(string $name, Providers\IProvider $provider)
+	public function registerProvider(string $name, Providers\IProvider $provider) : void
 	{
 		$this->providers[$name] = $provider;
 	}
@@ -137,7 +139,7 @@ final class ImagesLoader extends Nette\Object
 	/**
 	 * @return Templating\Helpers
 	 */
-	public function createTemplateHelpers()
+	public function createTemplateHelpers() : Templating\Helpers
 	{
 		return new Templating\Helpers($this);
 	}

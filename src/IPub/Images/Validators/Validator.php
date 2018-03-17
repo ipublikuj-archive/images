@@ -18,7 +18,6 @@ namespace IPub\Images\Validators;
 
 use Nette;
 
-use IPub;
 use IPub\Images\Exceptions;
 
 /**
@@ -30,12 +29,12 @@ use IPub\Images\Exceptions;
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  * @inspiredBy     dotBlue <http://dotblue.net>
  */
-class Validator extends Nette\Object implements IValidator
+class Validator implements IValidator
 {
 	/**
-	 * Define class name
+	 * Implement nette smart magic
 	 */
-	const CLASS_NAME = __CLASS__;
+	use Nette\SmartObject;
 
 	/**
 	 * @var array[]
@@ -52,7 +51,7 @@ class Validator extends Nette\Object implements IValidator
 	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
-	public function addRule(int $width = NULL, int $height = NULL, $algorithm = NULL, string $storage = NULL)
+	public function addRule(?int $width = NULL, ?int $height = NULL, $algorithm = NULL, ?string $storage = NULL)
 	{
 		if ($width === NULL && $height === NULL) {
 			throw new Exceptions\InvalidArgumentException('Width or height have to be defined!');
@@ -76,7 +75,7 @@ class Validator extends Nette\Object implements IValidator
 	 *
 	 * @return bool
 	 */
-	public function validate(int $width = NULL, int $height = NULL, int $algorithm = NULL, string $storage = NULL) : bool
+	public function validate(?int $width = NULL, ?int $height = NULL, ?int $algorithm = NULL, ?string $storage = NULL) : bool
 	{
 		if (!count($this->rules)) {
 			return TRUE;

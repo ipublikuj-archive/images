@@ -21,7 +21,6 @@ use Nette\Application;
 use Nette\Http;
 use Nette\Utils;
 
-use IPub;
 use IPub\Images;
 use IPub\Images\Exceptions;
 use IPub\Images\Helpers;
@@ -37,12 +36,12 @@ use League\Flysystem;
  *
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
-class ImagesPresenter extends Nette\Object implements Application\IPresenter
+class ImagesPresenter implements Application\IPresenter
 {
 	/**
-	 * Define class name
+	 * Implement nette smart magic
 	 */
-	const CLASS_NAME = __CLASS__;
+	use Nette\SmartObject;
 
 	/**
 	 * @var Http\IRequest
@@ -154,9 +153,11 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	 * @param string|NULL $size
 	 * @param string|NULL $algorithm
 	 *
+	 * @return void
+	 *
 	 * @throws Application\BadRequestException
 	 */
-	private function generateImage(string $storage, string $namespace = NULL, string $filename, string $extension, string $size = NULL, string $algorithm = NULL)
+	private function generateImage(string $storage, ?string $namespace = NULL, string $filename, string $extension, ?string $size = NULL, ?string $algorithm = NULL) : void
 	{
 		try {
 			$fileSystem = $this->mountManager->getFilesystem($storage);
@@ -212,9 +213,11 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	 * @param int|NULL $height
 	 * @param int $algorithm
 	 *
+	 * @return void
+	 *
 	 * @throws Application\BadRequestException
 	 */
-	private function createImage(string $imageContent, string $mimeType = NULL, int $width = NULL, int $height = NULL, int $algorithm)
+	private function createImage(string $imageContent, ?string $mimeType = NULL, ?int $width = NULL, ?int $height = NULL, int $algorithm) : void
 	{
 		$destination = $this->webDir . $this->httpRequest->getUrl()->getPath();
 
@@ -258,7 +261,7 @@ class ImagesPresenter extends Nette\Object implements Application\IPresenter
 	 *
 	 * @throws Application\BadRequestException
 	 */
-	private function getParameter(array $params, string $key, bool $required = FALSE)
+	private function getParameter(array $params, string $key, bool $required = FALSE) : ?string
 	{
 		if (!isset($params[$key])) {
 			if ($required) {

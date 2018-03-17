@@ -21,7 +21,6 @@ use Nette\Application;
 use Nette\Http;
 use Nette\Utils;
 
-use IPub;
 use IPub\Images;
 
 /**
@@ -32,8 +31,13 @@ use IPub\Images;
  *
  * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  */
-class ImageResponse extends Nette\Object implements Application\IResponse
+class ImageResponse implements Application\IResponse
 {
+	/**
+	 * Implement nette smart magic
+	 */
+	use Nette\SmartObject;
+
 	/**
 	 * @var string
 	 */
@@ -54,7 +58,7 @@ class ImageResponse extends Nette\Object implements Application\IResponse
 	 * @param string|NULL $mimeType
 	 * @param string|NULL $eTag
 	 */
-	public function __construct(string $filePath, string $mimeType = NULL, string $eTag = NULL)
+	public function __construct(string $filePath, ?string $mimeType = NULL, ?string $eTag = NULL)
 	{
 		$this->filePath = $filePath;
 		$this->mimeType = $mimeType;
@@ -74,8 +78,10 @@ class ImageResponse extends Nette\Object implements Application\IResponse
 	 *
 	 * @param Http\IRequest $httpRequest
 	 * @param Http\IResponse $httpResponse
+	 *
+	 * @return void
 	 */
-	public function send(Http\IRequest $httpRequest, Http\IResponse $httpResponse)
+	public function send(Http\IRequest $httpRequest, Http\IResponse $httpResponse) : void
 	{
 		$httpResponse->setExpiration(Http\IResponse::PERMANENT);
 
