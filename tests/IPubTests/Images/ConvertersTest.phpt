@@ -51,8 +51,8 @@ class ConvertersTest extends Tester\TestCase
 		return [
 			[NULL, 'original'],
 			['50x50', '50x50'],
-			['50', 50],
-			['50x', 50],
+			['50', '50'],
+			['50x', '50'],
 		];
 	}
 

@@ -81,10 +81,10 @@ class ImagesPresenter implements Application\IPresenter
 	/**
 	 * @var string
 	 */
-	private $webDir;
+	private $wwwDir;
 
 	/**
-	 * @param string $webDir
+	 * @param string $wwwDir
 	 * @param Images\ImagesLoader $imagesLoader
 	 * @param Validators\Validator $validator
 	 * @param Flysystem\MountManager $mountManager
@@ -93,7 +93,7 @@ class ImagesPresenter implements Application\IPresenter
 	 * @param Application\IRouter|NULL $router
 	 */
 	public function __construct(
-		string $webDir,
+		string $wwwDir,
 		Images\ImagesLoader $imagesLoader,
 		Validators\Validator $validator,
 		Flysystem\MountManager $mountManager,
@@ -101,7 +101,7 @@ class ImagesPresenter implements Application\IPresenter
 		Http\IResponse $httpResponse,
 		Application\IRouter $router = NULL
 	) {
-		$this->webDir = $webDir;
+		$this->wwwDir = $wwwDir;
 
 		$this->imagesLoader = $imagesLoader;
 		$this->validator = $validator;
@@ -185,7 +185,7 @@ class ImagesPresenter implements Application\IPresenter
 					throw new Application\BadRequestException('Image can\'t be read.');
 				}
 
-				$destination = $this->webDir . $this->httpRequest->getUrl()->getPath();
+				$destination = $this->wwwDir . $this->httpRequest->getUrl()->getPath();
 
 				$dirName = dirname($destination);
 
@@ -219,7 +219,7 @@ class ImagesPresenter implements Application\IPresenter
 	 */
 	private function createImage(string $imageContent, ?string $mimeType = NULL, ?int $width = NULL, ?int $height = NULL, int $algorithm) : void
 	{
-		$destination = $this->webDir . $this->httpRequest->getUrl()->getPath();
+		$destination = $this->wwwDir . $this->httpRequest->getUrl()->getPath();
 
 		// Check if file is allowed image type
 		if (in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif'], TRUE)) {

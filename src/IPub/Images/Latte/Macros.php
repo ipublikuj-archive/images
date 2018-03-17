@@ -68,7 +68,7 @@ final class Macros extends MacroSet
 	{
 		$arguments = self::prepareMacroArguments($node->args);
 
-		$arguments = implode(',', array_map(function ($value, $key) {
+		$arguments = implode(',', array_map(function ($value, $key) : string {
 			return '"' . $key . '" => '. ($value ? '"' . $value . '"' : 'NULL');
 		}, array_values($arguments), array_keys($arguments)));
 
@@ -86,7 +86,7 @@ final class Macros extends MacroSet
 	 */
 	public static function prepareMacroArguments(string $macro) : array
 	{
-		$arguments = array_map(function ($value) {
+		$arguments = array_map(function ($value) : string {
 			return trim($value);
 		}, explode(',', $macro));
 
