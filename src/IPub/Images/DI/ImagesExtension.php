@@ -175,7 +175,8 @@ class ImagesExtension extends DI\CompilerExtension
 
 		// Images presenter
 		$builder->addDefinition($this->prefix('presenter'))
-			->setType(IPubModule\ImagesPresenter::class, [
+			->setType(IPubModule\ImagesPresenter::class)
+			->setArguments([
 				$configuration['wwwDir'],
 			]);
 
@@ -200,7 +201,7 @@ class ImagesExtension extends DI\CompilerExtension
 		$builder = $this->getContainerBuilder();
 
 		$router = $builder->addDefinition($this->prefix('router'))
-			->setType('Nette\Application\Routers\RouteList')
+			->setType(Nette\Application\Routers\RouteList::class)
 			->addTag($this->prefix('routeList'))
 			->setAutowired(FALSE);
 
@@ -226,7 +227,8 @@ class ImagesExtension extends DI\CompilerExtension
 			}
 
 			$builder->addDefinition($this->prefix('route.' . $i))
-				->setType(Application\Route::class, [$mask, $metadata, $flags])
+				->setType(Application\Route::class)
+				->setArguments([$mask, $metadata, $flags])
 				->setAutowired(FALSE)
 				->addTag(self::TAG_IMAGES_ROUTES)
 				->setInject(FALSE);
