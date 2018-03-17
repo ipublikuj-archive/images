@@ -36,6 +36,8 @@ use League\Flysystem;
  */
 final class Helpers
 {
+  use Nette\SmartObject;
+
 	/**
 	 * Implement nette smart magic
 	 */
@@ -95,7 +97,7 @@ final class Helpers
 	 * @param array $parameters
 	 *
 	 * @return string
-	 * 
+	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 */
 	public function imageLink(array $parameters) : string

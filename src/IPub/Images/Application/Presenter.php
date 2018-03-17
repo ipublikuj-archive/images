@@ -38,6 +38,8 @@ use League\Flysystem;
  */
 class ImagesPresenter implements Application\IPresenter
 {
+  use Nette\SmartObject;
+
 	/**
 	 * Implement nette smart magic
 	 */

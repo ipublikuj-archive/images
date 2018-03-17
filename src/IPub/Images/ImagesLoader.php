@@ -38,6 +38,8 @@ use League\Flysystem;
  */
 final class ImagesLoader
 {
+  use Nette\SmartObject;
+  
 	/**
 	 * Implement nette smart magic
 	 */

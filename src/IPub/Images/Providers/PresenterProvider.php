@@ -37,6 +37,8 @@ use League\Flysystem;
  */
 class PresenterProvider implements IProvider
 {
+  use Nette\SmartObject;
+
 	/**
 	 * Implement nette smart magic
 	 */

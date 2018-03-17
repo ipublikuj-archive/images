@@ -31,6 +31,8 @@ use IPub\Images\Exceptions;
  */
 class Validator implements IValidator
 {
+  use Nette\SmartObject;
+
 	/**
 	 * Implement nette smart magic
 	 */

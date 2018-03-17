@@ -33,6 +33,8 @@ use IPub\Images;
  */
 class ImageResponse implements Application\IResponse
 {
+  use Nette\SmartObject;
+
 	/**
 	 * Implement nette smart magic
 	 */
