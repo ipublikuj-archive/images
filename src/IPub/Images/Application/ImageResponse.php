@@ -19,9 +19,6 @@ namespace IPub\Images\Application;
 use Nette;
 use Nette\Application;
 use Nette\Http;
-use Nette\Utils;
-
-use IPub\Images;
 
 /**
  * Image response for serving images to the output
