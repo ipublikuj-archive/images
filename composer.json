@@ -23,7 +23,7 @@
 		"ipub"	: {
 			"configuration" : {
 				"extensions" : {
-					"confirmationDialog" : "IPub\\Images\\DI\\ImagesExtension"
+					"images" : "IPub\\Images\\DI\\ImagesExtension"
 				}
 			}
 		}
