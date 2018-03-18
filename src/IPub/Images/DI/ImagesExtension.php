@@ -4,7 +4,7 @@
  *
  * @copyright      More in license.md
  * @license        https://www.ipublikuj.eu
- * @author         Adam Kadlec https://www.ipublikuj.eu
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  * @package        iPublikuj:Images!
  * @subpackage     DI
  * @since          1.0.0
@@ -19,7 +19,6 @@ namespace IPub\Images\DI;
 use Nette;
 use Nette\DI;
 use Nette\Utils;
-use Nette\PhpGenerator as Code;
 
 use IPub\Images;
 use IPub\Images\Application;
@@ -28,7 +27,6 @@ use IPub\Images\Templating;
 use IPub\Images\Validators;
 
 use IPub\IPubModule;
-use Tracy\Debugger;
 
 /**
  * Images extension container
@@ -57,6 +55,12 @@ class ImagesExtension extends DI\CompilerExtension
 		'wwwDir'                => NULL,
 	];
 
+	/**
+	 * @return void
+	 *
+	 * @throws Exceptions\InvalidArgumentException
+	 * @throws Utils\AssertionException
+	 */
 	public function loadConfiguration() : void
 	{
 		// Get container builder

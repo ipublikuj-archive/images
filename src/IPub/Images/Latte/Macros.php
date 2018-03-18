@@ -4,7 +4,7 @@
  *
  * @copyright      More in license.md
  * @license        https://www.ipublikuj.eu
- * @author         Adam Kadlec https://www.ipublikuj.eu
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  * @package        iPublikuj:Images!
  * @subpackage     Latte
  * @since          1.0.0
@@ -16,16 +16,11 @@ declare(strict_types = 1);
 
 namespace IPub\Images\Latte;
 
-use Nette;
-
-use Latte;
 use Latte\Compiler;
 use Latte\MacroNode;
 use Latte\PhpWriter;
 use Latte\Macros\MacroSet;
 
-use IPub;
-use IPub\Images;
 use IPub\Images\Helpers;
 
 /**

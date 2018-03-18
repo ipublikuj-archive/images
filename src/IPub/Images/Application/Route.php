@@ -4,7 +4,7 @@
  *
  * @copyright      More in license.md
  * @license        https://www.ipublikuj.eu
- * @author         Adam Kadlec https://www.ipublikuj.eu
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  * @package        iPublikuj:Images!
  * @subpackage     Application
  * @since          1.0.0
@@ -18,8 +18,6 @@ namespace IPub\Images\Application;
 
 use Nette\Application;
 use Nette\Utils;
-
-use IPub\Images;
 
 /**
  * Micro-module router

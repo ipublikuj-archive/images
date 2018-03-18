@@ -4,7 +4,7 @@
  *
  * @copyright      More in license.md
  * @license        https://www.ipublikuj.eu
- * @author         Adam Kadlec https://www.ipublikuj.eu
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  * @package        iPublikuj:Images!
  * @subpackage     Templating
  * @since          1.0.0
@@ -18,8 +18,6 @@ namespace IPub\Images\Templating;
 
 use Nette;
 use Nette\Utils;
-
-use Latte\Engine;
 
 use IPub\Images;
 use IPub\Images\Exceptions;
@@ -59,6 +57,13 @@ final class Helpers
 	 * @param string $file
 	 *
 	 * @return bool
+	 *
+	 * @throws Exceptions\InvalidArgumentException
+	 * @throws Exceptions\InvalidStateException
+	 *
+	 * @throws Exceptions\InvalidArgumentException
+	 * @throws Exceptions\InvalidStateException
+	 * @throws Utils\ImageException
 	 */
 	public function isSquare(string $file) : bool
 	{
@@ -71,6 +76,10 @@ final class Helpers
 	 * @param string $file
 	 *
 	 * @return bool
+	 *
+	 * @throws Exceptions\InvalidArgumentException
+	 * @throws Exceptions\InvalidStateException
+	 * @throws Utils\ImageException
 	 */
 	public function isHigher(string $file) : bool
 	{
@@ -83,6 +92,10 @@ final class Helpers
 	 * @param string $file
 	 *
 	 * @return bool
+	 *
+	 * @throws Exceptions\InvalidArgumentException
+	 * @throws Exceptions\InvalidStateException
+	 * @throws Utils\ImageException
 	 */
 	public function isWider(string $file) : bool
 	{
@@ -95,8 +108,9 @@ final class Helpers
 	 * @param array $parameters
 	 *
 	 * @return string
-	 * 
+	 *
 	 * @throws Exceptions\InvalidArgumentException
+	 * @throws Exceptions\InvalidStateException
 	 */
 	public function imageLink(array $parameters) : string
 	{
@@ -110,6 +124,7 @@ final class Helpers
 	 *
 	 * @throws Exceptions\InvalidArgumentException
 	 * @throws Exceptions\InvalidStateException
+	 * @throws Utils\ImageException
 	 */
 	private function fromString($file) : Utils\Image
 	{

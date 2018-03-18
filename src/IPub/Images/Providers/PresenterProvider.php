@@ -4,7 +4,7 @@
  *
  * @copyright      More in license.md
  * @license        https://www.ipublikuj.eu
- * @author         Adam Kadlec https://www.ipublikuj.eu
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  * @package        iPublikuj:Images!
  * @subpackage     Providers
  * @since          2.0.0
@@ -20,7 +20,6 @@ use Nette;
 use Nette\Application;
 use Nette\Utils;
 
-use IPub\Images;
 use IPub\Images\Exceptions;
 use IPub\Images\Helpers;
 use IPub\Images\Validators;

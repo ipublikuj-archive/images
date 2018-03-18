@@ -4,7 +4,7 @@
  *
  * @copyright      More in license.md
  * @license        https://www.ipublikuj.eu
- * @author         Adam Kadlec https://www.ipublikuj.eu
+ * @author         Adam Kadlec <adam.kadlec@ipublikuj.eu>
  * @package        iPublikuj:Images!
  * @subpackage     Application
  * @since          1.0.0
@@ -22,7 +22,6 @@ use Nette\Http;
 use Nette\Utils;
 
 use IPub\Images;
-use IPub\Images\Exceptions;
 use IPub\Images\Helpers;
 use IPub\Images\Validators;
 
@@ -117,6 +116,7 @@ class ImagesPresenter implements Application\IPresenter
 	 * @return Application\IResponse
 	 *
 	 * @throws Application\BadRequestException
+	 * @throws Utils\ImageException
 	 */
 	public function run(Application\Request $request) : Application\IResponse
 	{
@@ -156,6 +156,7 @@ class ImagesPresenter implements Application\IPresenter
 	 * @return void
 	 *
 	 * @throws Application\BadRequestException
+	 * @throws Utils\ImageException
 	 */
 	private function generateImage(string $storage, ?string $namespace = NULL, string $filename, string $extension, ?string $size = NULL, ?string $algorithm = NULL) : void
 	{
@@ -216,6 +217,7 @@ class ImagesPresenter implements Application\IPresenter
 	 * @return void
 	 *
 	 * @throws Application\BadRequestException
+	 * @throws Utils\ImageException
 	 */
 	private function createImage(string $imageContent, ?string $mimeType = NULL, ?int $width = NULL, ?int $height = NULL, int $algorithm) : void
 	{
