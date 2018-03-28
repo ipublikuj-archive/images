@@ -113,12 +113,12 @@ class ImagesPresenter implements Application\IPresenter
 	/**
 	 * @param Application\Request $request
 	 *
-	 * @return Application\IResponse
+	 * @return Application\IResponse|NULL
 	 *
 	 * @throws Application\BadRequestException
 	 * @throws Utils\ImageException
 	 */
-	public function run(Application\Request $request) : Application\IResponse
+	public function run(Application\Request $request) : ?Application\IResponse
 	{
 		$this->request = $request;
 
@@ -153,12 +153,12 @@ class ImagesPresenter implements Application\IPresenter
 	 * @param string|NULL $size
 	 * @param string|NULL $algorithm
 	 *
-	 * @return Images\Application\ImageResponse
+	 * @return Images\Application\ImageResponse|NULL
 	 *
 	 * @throws Application\BadRequestException
 	 * @throws Utils\ImageException
 	 */
-	private function generateImage(string $storage, ?string $namespace = NULL, string $filename, string $extension, ?string $size = NULL, ?string $algorithm = NULL) : Images\Application\ImageResponse
+	private function generateImage(string $storage, ?string $namespace = NULL, string $filename, string $extension, ?string $size = NULL, ?string $algorithm = NULL) : ?Images\Application\ImageResponse
 	{
 		try {
 			$fileSystem = $this->mountManager->getFilesystem($storage);
@@ -214,12 +214,12 @@ class ImagesPresenter implements Application\IPresenter
 	 * @param int|NULL $height
 	 * @param int $algorithm
 	 *
-	 * @return Images\Application\ImageResponse
+	 * @return Images\Application\ImageResponse|NULL
 	 *
 	 * @throws Application\BadRequestException
 	 * @throws Utils\ImageException
 	 */
-	private function createImage(string $imageContent, ?string $mimeType = NULL, ?int $width = NULL, ?int $height = NULL, int $algorithm) : Images\Application\ImageResponse
+	private function createImage(string $imageContent, ?string $mimeType = NULL, ?int $width = NULL, ?int $height = NULL, int $algorithm) : ?Images\Application\ImageResponse
 	{
 		$destination = $this->wwwDir . $this->httpRequest->getUrl()->getPath();
 
@@ -241,6 +241,8 @@ class ImagesPresenter implements Application\IPresenter
 			}
 
 			$image->send();
+
+			return NULL;
 
 		} else {
 			try {
