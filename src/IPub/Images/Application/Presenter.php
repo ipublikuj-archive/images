@@ -142,7 +142,7 @@ class ImagesPresenter implements Application\IPresenter
 		$size = $this->getParameter($params, 'size');
 		$algorithm = $this->getParameter($params, 'algorithm');
 
-		$this->generateImage($storage, $namespace, $filename, $extension, $size, $algorithm);
+		return $this->generateImage($storage, $namespace, $filename, $extension, $size, $algorithm);
 	}
 
 	/**
@@ -153,12 +153,12 @@ class ImagesPresenter implements Application\IPresenter
 	 * @param string|NULL $size
 	 * @param string|NULL $algorithm
 	 *
-	 * @return void
+	 * @return Images\Application\ImageResponse
 	 *
 	 * @throws Application\BadRequestException
 	 * @throws Utils\ImageException
 	 */
-	private function generateImage(string $storage, ?string $namespace = NULL, string $filename, string $extension, ?string $size = NULL, ?string $algorithm = NULL) : void
+	private function generateImage(string $storage, ?string $namespace = NULL, string $filename, string $extension, ?string $size = NULL, ?string $algorithm = NULL) : Images\Application\ImageResponse
 	{
 		try {
 			$fileSystem = $this->mountManager->getFilesystem($storage);
@@ -196,7 +196,7 @@ class ImagesPresenter implements Application\IPresenter
 
 				$mimeType = $fileSystem->getMimetype($file);
 
-				$this->createImage($image, ($mimeType ? $mimeType : NULL), $width, $height, $algorithm);
+				return $this->createImage($image, ($mimeType ? $mimeType : NULL), $width, $height, $algorithm);
 
 			} catch (Flysystem\FileNotFoundException $ex) {
 				throw new Application\BadRequestException('File not found.');
@@ -214,12 +214,12 @@ class ImagesPresenter implements Application\IPresenter
 	 * @param int|NULL $height
 	 * @param int $algorithm
 	 *
-	 * @return void
+	 * @return Images\Application\ImageResponse
 	 *
 	 * @throws Application\BadRequestException
 	 * @throws Utils\ImageException
 	 */
-	private function createImage(string $imageContent, ?string $mimeType = NULL, ?int $width = NULL, ?int $height = NULL, int $algorithm) : void
+	private function createImage(string $imageContent, ?string $mimeType = NULL, ?int $width = NULL, ?int $height = NULL, int $algorithm) : Images\Application\ImageResponse
 	{
 		$destination = $this->wwwDir . $this->httpRequest->getUrl()->getPath();
 
@@ -246,7 +246,7 @@ class ImagesPresenter implements Application\IPresenter
 			try {
 				Utils\FileSystem::write($destination, $imageContent);
 
-				(new Images\Application\ImageResponse($destination, $mimeType))->send($this->httpRequest, $this->httpResponse);
+				return (new Images\Application\ImageResponse($destination, $mimeType));
 
 			} catch (\Exception $ex) {
 				throw new Application\BadRequestException(sprintf('Image can\'t be saved into destination web folder: "%s"', $destination));
